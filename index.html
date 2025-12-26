@@ -1,837 +1,820 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Paraflow — The Visual Coding Agent</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <!-- 背景 -->
-    <div class="page-bg"></div>
-
-    <!-- 导航栏 -->
-    <header class="topbar">
-      <div class="topbar__brand">
-        <img src="./logo.svg" alt="Paraflow" class="brand-logo" />
-      </div>
-      <nav class="topbar__nav">
-        <a href="#" class="nav-item">
-          Product
-          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-            <path d="M2 2L4 4L6 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <a href="#" class="nav-item">Use Cases</a>
-        <a href="#" class="nav-item">Learn</a>
-        <a href="#" class="nav-item">Pricing</a>
-      </nav>
-      <div class="topbar__actions">
-        <a class="ghost-link" href="#">Log in</a>
-        <a class="btn btn-sm btn-primary" href="#">Get started</a>
-      </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paraflow - The Visual Coding Agent</title>
+    <!-- Version: 3.0 - Latest -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        /* 硬件加速 */
+        .view-item {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        
+        .coding-text {
+            font-family: 'Pixelify Sans', monospace;
+            font-size: 0.95em;
+            letter-spacing: 0.08em;
+            display: inline-block;
+            text-align: center;
+            margin: 0 16px;
+            image-rendering: pixelated;
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
+        }
+        
+        .geometric-pattern {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            overflow: hidden;
+        }
+        
+        .diamond-shape {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border: 3px solid;
+            transform: rotate(45deg);
+            opacity: 0.4;
+        }
+        
+        .diamond-shape::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            width: 80%;
+            height: 80%;
+            border: 2px solid;
+            opacity: 0.6;
+        }
+        
+        .diamond-shape-1 {
+            top: 15%;
+            left: 15%;
+            border-color: #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .diamond-shape-1::before {
+            border-color: #00ff88;
+        }
+        
+        .diamond-shape-2 {
+            top: 25%;
+            right: 15%;
+            border-color: #00d9ff;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+        }
+        
+        .diamond-shape-2::before {
+            border-color: #00d9ff;
+        }
+        
+        .flow-arrow {
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #00ff88, #00d9ff);
+            opacity: 0.6;
+        }
+        
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid #00d9ff;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+        
+        .glow-button {
+            background: #00BF4B;
+            box-shadow: 0 0 20px rgba(0, 191, 75, 0.4), 0 0 40px rgba(0, 191, 75, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            color: #ffffff;
+        }
+        
+        .glow-button:hover {
+            background: #00d955;
+            box-shadow: 0 0 30px rgba(0, 191, 75, 0.6), 0 0 60px rgba(0, 191, 75, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .number-badge {
+            background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%);
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 26px;
+            color: #000;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.1);
+        }
+        
+        .app-card {
+            background: rgba(15, 15, 15, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.15);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .app-card:hover {
+            border-color: rgba(0, 255, 136, 0.3);
+            background: rgba(20, 20, 20, 0.95);
+        }
+        
+        .fullscreen-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .view-item {
+            padding-top: 128px;
+            padding-bottom: 128px;
+        }
+        
+        .view-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .view-item {
+            width: 100%;
+            padding-top: 128px;
+            padding-bottom: 128px;
+            transition: transform 0.6s ease-in-out;
+        }
+        
+        .view-item.active {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        
+        /* 文字动画 */
+        .view-item .left-content > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .view-item.active .left-content > *:nth-child(1) {
+            transition-delay: 0.1s;
+        }
+        
+        .view-item.active .left-content > *:nth-child(2) {
+            transition-delay: 0.2s;
+        }
+        
+        .view-item.active .left-content > *:nth-child(3) {
+            transition-delay: 0.3s;
+        }
+        
+        .view-item.active .left-content > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 卡片动画 */
+        .view-item .right-cards > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .view-item.active .right-cards > *:nth-child(1) {
+            transition-delay: 0.2s;
+        }
+        
+        .view-item.active .right-cards > *:nth-child(2) {
+            transition-delay: 0.3s;
+        }
+        
+        .view-item.active .right-cards > *:nth-child(3) {
+            transition-delay: 0.4s;
+        }
+        
+        .view-item.active .right-cards > *:nth-child(4) {
+            transition-delay: 0.5s;
+        }
+        
+        .view-item.active .right-cards > * {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .view-dot {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-dot:hover {
+            opacity: 0.8;
+        }
+        
+        .nav-link {
+            color: #DADCE0;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #ffffff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50" style="background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+        <!-- Navigation Container - 响应式设计 -->
+        <div class="mx-auto w-full max-w-[1920px] px-4 md:px-10">
+            <!-- Navigation Bar -->
+            <nav class="w-full relative" style="height: 72px; display: flex; align-items: center; justify-content: space-between;">
+                <!-- Logo -->
+                <div class="flex items-center flex-shrink-0">
+                    <img src="logo.svg" alt="Paraflow" style="height: 26px; width: auto;">
+                </div>
+                
+                <!-- Navigation Links - 居中 -->
+                <div class="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+                    <a href="#" class="nav-link text-sm flex items-center gap-1 whitespace-nowrap">
+                        Product
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: inherit;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </a>
+                    <a href="#" class="nav-link text-sm whitespace-nowrap">Use Cases</a>
+                    <a href="#" class="nav-link text-sm whitespace-nowrap">Learn</a>
+                    <a href="#" class="nav-link text-sm whitespace-nowrap">Pricing</a>
+                </div>
+                
+                <!-- Right Actions -->
+                <div class="flex items-center gap-4 flex-shrink-0">
+                    <a href="#" class="text-white text-sm font-medium hover:opacity-80 transition-colors whitespace-nowrap">Log in</a>
+                    <button class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 whitespace-nowrap" style="background: #00BF4B; color: #ffffff;">
+                        Get started
+                    </button>
+                </div>
+            </nav>
+        </div>
     </header>
 
-    <!-- 顶部横幅 -->
-    <div class="announcement-banner">
-      <div class="announcement-banner__inner">
-        <span class="announcement-text">What's New: Copy to Figma now LIVE!</span>
-        <a href="#" class="announcement-link">Try it out →</a>
-      </div>
-    </div>
-
-    <!-- 主内容区 -->
-    <main class="hero">
-      <div class="hero__inner">
-        <!-- 双钻图形 -->
-        <div class="hero__diamond">
-          <svg class="diamond-svg" viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid meet">
-            <defs>
-              <!-- 白色渐变 -->
-              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6" />
-                <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.6" />
-              </linearGradient>
-              
-              <!-- 绿色渐变 -->
-              <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style="stop-color:#1afc71;stop-opacity:0.3" />
-                <stop offset="50%" style="stop-color:#1afc71;stop-opacity:0.8" />
-                <stop offset="100%" style="stop-color:#1afc71;stop-opacity:0.3" />
-              </linearGradient>
-              
-              <!-- 发光效果 -->
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-              
-              <!-- 绿色发光效果 -->
-              <filter id="greenGlow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-              
-              <!-- 端点标记 -->
-              <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-                <polygon points="0,0 6,3 0,6" fill="#ffffff" opacity="0.8"/>
-              </marker>
-            </defs>
-
-            <!-- 大量连接线 - 从中心向外延伸 -->
-            <!-- 左侧区域线条 -->
-            <line x1="600" y1="200" x2="100" y2="50" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="120" y2="60" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="80" y2="100" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="150" y2="120" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="200" y2="80" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="250" y2="100" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="100" y2="150" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="180" y2="180" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
+    <!-- Hero Section -->
+    <section class="relative px-6 overflow-hidden bg-black" style="padding-top: 280px; padding-bottom: 128px; display: flex; align-items: center; height: fit-content;">
+        <div class="max-w-7xl mx-auto w-full relative z-10">
+            <!-- Main Title -->
+            <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold text-center mb-8 leading-tight tracking-tight text-white" style="white-space: nowrap;">
+                The Visual <span class="coding-text" id="codingText">Coding</span> Agent
+            </h1>
             
-            <!-- 左下区域线条 -->
-            <line x1="600" y1="200" x2="100" y2="350" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="120" y2="340" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="80" y2="300" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="150" y2="280" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="200" y2="320" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="250" y2="300" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="100" y2="250" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="180" y2="220" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
+            <!-- Subtitle -->
+            <p class="text-xl md:text-2xl text-gray-400 text-center mb-12 max-w-3xl mx-auto leading-relaxed" style="font-weight: 400;">
+                Vibe coding tools make apps. The Visual Coding Agent builds real apps.
+            </p>
             
-            <!-- 右侧区域线条 -->
-            <line x1="600" y1="200" x2="1100" y2="50" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1080" y2="60" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1120" y2="100" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1050" y2="120" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1000" y2="80" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="950" y2="100" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1100" y2="150" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1020" y2="180" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
-            
-            <!-- 右下区域线条 -->
-            <line x1="600" y1="200" x2="1100" y2="350" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1080" y2="340" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1120" y2="300" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1050" y2="280" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1000" y2="320" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="950" y2="300" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1100" y2="250" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="1020" y2="220" stroke="#1afc71" stroke-width="0.5" opacity="0.3" filter="url(#greenGlow)"/>
-            
-            <!-- 上方区域线条 -->
-            <line x1="600" y1="200" x2="300" y2="20" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="400" y2="30" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="500" y2="40" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="700" y2="30" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="800" y2="40" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="900" y2="50" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            
-            <!-- 下方区域线条 -->
-            <line x1="600" y1="200" x2="300" y2="380" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="400" y2="370" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="500" y2="360" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="700" y2="370" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="800" y2="360" stroke="#1afc71" stroke-width="0.5" opacity="0.2" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="900" y2="350" stroke="#1afc71" stroke-width="0.5" opacity="0.25" filter="url(#greenGlow)"/>
-            
-            <!-- 更多随机方向的线条 -->
-            <line x1="600" y1="200" x2="350" y2="80" stroke="#1afc71" stroke-width="0.4" opacity="0.15" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="450" y2="60" stroke="#1afc71" stroke-width="0.4" opacity="0.18" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="750" y2="70" stroke="#1afc71" stroke-width="0.4" opacity="0.15" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="850" y2="90" stroke="#1afc71" stroke-width="0.4" opacity="0.18" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="350" y2="320" stroke="#1afc71" stroke-width="0.4" opacity="0.15" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="450" y2="340" stroke="#1afc71" stroke-width="0.4" opacity="0.18" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="750" y2="330" stroke="#1afc71" stroke-width="0.4" opacity="0.15" filter="url(#greenGlow)"/>
-            <line x1="600" y1="200" x2="850" y2="310" stroke="#1afc71" stroke-width="0.4" opacity="0.18" filter="url(#greenGlow)"/>
-            
-            <!-- 粒子点效果 -->
-            <circle cx="300" cy="100" r="1" fill="#1afc71" opacity="0.4" filter="url(#greenGlow)"/>
-            <circle cx="400" cy="60" r="1" fill="#1afc71" opacity="0.3" filter="url(#greenGlow)"/>
-            <circle cx="500" cy="80" r="1" fill="#1afc71" opacity="0.35" filter="url(#greenGlow)"/>
-            <circle cx="700" cy="70" r="1" fill="#1afc71" opacity="0.3" filter="url(#greenGlow)"/>
-            <circle cx="800" cy="90" r="1" fill="#1afc71" opacity="0.4" filter="url(#greenGlow)"/>
-            <circle cx="900" cy="120" r="1" fill="#1afc71" opacity="0.35" filter="url(#greenGlow)"/>
-            <circle cx="300" cy="300" r="1" fill="#1afc71" opacity="0.4" filter="url(#greenGlow)"/>
-            <circle cx="400" cy="340" r="1" fill="#1afc71" opacity="0.3" filter="url(#greenGlow)"/>
-            <circle cx="500" cy="320" r="1" fill="#1afc71" opacity="0.35" filter="url(#greenGlow)"/>
-            <circle cx="700" cy="330" r="1" fill="#1afc71" opacity="0.3" filter="url(#greenGlow)"/>
-            <circle cx="800" cy="310" r="1" fill="#1afc71" opacity="0.4" filter="url(#greenGlow)"/>
-            <circle cx="900" cy="280" r="1" fill="#1afc71" opacity="0.35" filter="url(#greenGlow)"/>
-
-            <!-- 左侧钻石（Define） -->
-            <!-- 从左上、左下汇聚到中心点，左右尖角更明显 -->
-            <path 
-              d="M 150 30 L 600 200 L 150 370 Z" 
-              fill="none" 
-              stroke="url(#lineGradient)" 
-              stroke-width="1" 
-              opacity="0.95"
-              filter="url(#glow)"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            
-            <!-- 左侧钻石内部装饰线 -->
-            <path 
-              d="M 200 80 L 600 200 L 200 320" 
-              fill="none" 
-              stroke="#ffffff" 
-              stroke-width="0.5" 
-              opacity="0.3"
-              stroke-dasharray="2,4"
-            />
-            <path 
-              d="M 250 130 L 600 200 L 250 270" 
-              fill="none" 
-              stroke="#ffffff" 
-              stroke-width="0.5" 
-              opacity="0.2"
-              stroke-dasharray="1,5"
-            />
-            
-            <!-- 左侧尖角装饰 -->
-            <circle cx="150" cy="30" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
-            <circle cx="150" cy="370" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
-            
-            <!-- 右侧钻石（Develop） -->
-            <!-- 从中心点发散到右上、右下，左右尖角更明显 -->
-            <path 
-              d="M 600 200 L 1050 30 L 1050 370 Z" 
-              fill="none" 
-              stroke="url(#lineGradient)" 
-              stroke-width="1" 
-              opacity="0.95"
-              filter="url(#glow)"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            
-            <!-- 右侧钻石内部装饰线 -->
-            <path 
-              d="M 600 200 L 1000 80 L 1000 320" 
-              fill="none" 
-              stroke="#ffffff" 
-              stroke-width="0.5" 
-              opacity="0.3"
-              stroke-dasharray="2,4"
-            />
-            <path 
-              d="M 600 200 L 950 130 L 950 270" 
-              fill="none" 
-              stroke="#ffffff" 
-              stroke-width="0.5" 
-              opacity="0.2"
-              stroke-dasharray="1,5"
-            />
-            
-            <!-- 右侧尖角装饰 -->
-            <circle cx="1050" cy="30" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
-            <circle cx="1050" cy="370" r="2" fill="#ffffff" opacity="0.9" filter="url(#glow)"/>
-            
-            <!-- 中心点装饰 -->
-            <circle cx="600" cy="200" r="3" fill="#ffffff" opacity="0.8" filter="url(#glow)">
-              <animate attributeName="r" values="2;4;2" dur="3s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="600" cy="200" r="1" fill="#ffffff" opacity="1"/>
-          </svg>
-
-          <!-- 阶段标签 -->
-          <div class="diamond-label diamond-label--define">
-            <span class="label-text">Define</span>
-          </div>
-          <div class="diamond-label diamond-label--design">
-            <span class="label-text">Design</span>
-          </div>
-          <div class="diamond-label diamond-label--develop">
-            <span class="label-text">Develop</span>
-          </div>
+            <!-- CTA Buttons -->
+            <div class="flex items-center justify-center gap-4 flex-wrap">
+                <button class="glow-button px-8 py-4 font-semibold text-lg">
+                    Start building now
+                </button>
+                <button class="bg-black border border-gray-700 px-8 py-4 rounded-xl font-semibold text-white text-lg flex items-center gap-2 hover:bg-gray-900 transition">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                    Watch a video
+                </button>
+            </div>
         </div>
+    </section>
+    
+    <script>
+        // Coding 文字字体循环切换动画
+    </script>
 
-        <!-- 主标题 -->
-        <h1 class="hero__title">
-          The Visual <span class="coding-text">Coding</span> Agent
-        </h1>
-
-        <!-- 副标题 -->
-        <p class="hero__tagline">
-          Vibe coding tools make apps. The Visual Coding Agent builds real apps.
-        </p>
-
-        <!-- CTA按钮 -->
-        <div class="hero__cta">
-          <a href="#" class="btn btn-primary btn-large">Start building now</a>
-          <a href="#" class="btn btn-secondary">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M3 2L13 8L3 14V2Z" fill="currentColor"/>
-            </svg>
-            Watch a video
-          </a>
+    <!-- Fullscreen View Switcher Section -->
+    <section class="fullscreen-container bg-black" style="position: relative; width: 100vw; height: 100vh; overflow: hidden;">
+        <!-- View Container -->
+        <div class="view-container w-full h-full relative">
+            <!-- View 1: Build complete apps -->
+            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
+                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+                    <!-- Left Content -->
+                    <div class="left-content space-y-6">
+                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+                            Build <span style="color: #00BF4B;">complete apps,</span><br>
+                            front to back.
+                        </h2>
+                        <p class="text-xl text-gray-400 leading-relaxed">
+                            Design UI, define logic, and work with real data in one canvas. No handoffs. No glue code. Just shippable software.
+                        </p>
+                    </div>
+                    
+                    <!-- Right Cards -->
+                    <div class="right-cards grid grid-cols-2 gap-4">
+                        <!-- App Card 1 -->
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
+                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                        </div>
+                        
+                        <!-- App Card 2 -->
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
+                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
+                        </div>
+                        
+                        <!-- App Card 3 -->
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
+                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        </div>
+                        
+                        <!-- App Card 4 -->
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
+                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View 2: High-quality UI -->
+            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
+                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+                    <div class="left-content space-y-6">
+                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+                            High-quality UI by<br>
+                            <span style="color: #00BF4B;">default.</span>
+                        </h2>
+                        <h3 class="text-5xl md:text-6xl font-bold mb-4 leading-tight" style="color: #00BF4B;">
+                            Customizable when it matters.
+                        </h3>
+                        <p class="text-xl text-gray-400 leading-relaxed">
+                            Define a shared design system, then refine it together. Designers can step in to fine-tune every detail—without ever breaking consistency.
+                        </p>
+                    </div>
+                    <div class="right-cards grid grid-cols-2 gap-4">
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
+                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
+                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
+                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
+                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View 3: From realistic mockups -->
+            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
+                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+                    <div class="left-content space-y-6">
+                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+                            From realistic mockups<br>
+                            <span style="color: #00BF4B;">to real AI apps.</span>
+                        </h2>
+                        <p class="text-xl text-gray-400 leading-relaxed">
+                            Easily connect data, models, and services with flexible APIs and built-in integrations—for real products or realistic mockups.
+                        </p>
+                    </div>
+                    <div class="right-cards grid grid-cols-2 gap-4">
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
+                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
+                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
+                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
+                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- View 4: Enable anyone to build -->
+            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
+                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+                    <div class="left-content space-y-6">
+                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
+                            Enable anyone to<br>
+                            <span style="color: #00BF4B;">build the tools they need.</span>
+                        </h2>
+                        <p class="text-xl text-gray-400 leading-relaxed">
+                            Empower every team member to create lightweight, customizable tools that fit how they actually work—without waiting on engineering.
+                        </p>
+                    </div>
+                    <div class="right-cards grid grid-cols-2 gap-4">
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
+                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
+                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
+                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
+                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
+                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
+                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </main>
-
-    <!-- Build complete apps section - Full screen scroll -->
-    <section class="apps-section">
-      <div class="apps-section__inner">
-        <div class="apps-section__layout">
-          <!-- 左侧内容区域 - 会随滚动切换 -->
-          <div class="apps-section__content">
-            <!-- Use Case 1 -->
-            <div class="app-content-slide active" data-slide="0">
-              <h2 class="apps-section__title">Build complete apps, front to back.</h2>
-              <p class="apps-section__desc">
-                Design UI, define logic, and work with real data in one canvas. No handoffs. No glue code. Just shippable software.
-              </p>
-              <ul class="apps-section__features">
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Design UI in one canvas</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Define logic seamlessly</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Work with real data</span>
-                </li>
-              </ul>
-            </div>
-            <!-- Use Case 2 -->
-            <div class="app-content-slide" data-slide="1">
-              <h2 class="apps-section__title">Sales Lead Tracker & CRM</h2>
-              <p class="apps-section__desc">
-                Manage your sales pipeline with automated lead scoring and intelligent routing. Track deals from first contact to close.
-              </p>
-              <ul class="apps-section__features">
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Automated lead scoring</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Pipeline visualization</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Real-time analytics</span>
-                </li>
-              </ul>
-            </div>
-            <!-- Use Case 3 -->
-            <div class="app-content-slide" data-slide="2">
-              <h2 class="apps-section__title">Customer Feedback System</h2>
-              <p class="apps-section__desc">
-                Gather user insights with automated sentiment analysis. Turn feedback into actionable product improvements.
-              </p>
-              <ul class="apps-section__features">
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Sentiment analysis</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Feedback aggregation</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Actionable insights</span>
-                </li>
-              </ul>
-            </div>
-            <!-- Use Case 4 -->
-            <div class="app-content-slide" data-slide="3">
-              <h2 class="apps-section__title">Restaurant Order System</h2>
-              <p class="apps-section__desc">
-                Dual-interface system for customer and kitchen staff. Streamline ordering and improve kitchen efficiency.
-              </p>
-              <ul class="apps-section__features">
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Customer ordering interface</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Kitchen management</span>
-                </li>
-                <li class="feature-item">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.667 5L7.5 14.167 3.333 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>Real-time order tracking</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <!-- 右侧固定 Use Case 列表 -->
-          <div class="apps-section__usecases">
-            <div class="usecase-item active" data-usecase="0">
-              <div class="usecase-item__preview">
-                <div class="app-preview">
-                  <div class="app-preview__header">
-                    <div class="app-preview__dots">
-                      <span></span><span></span><span></span>
-                    </div>
-                  </div>
-                  <div class="app-preview__content">
-                    <div class="app-preview__sidebar"></div>
-                    <div class="app-preview__main">
-                      <div class="app-preview__avatar"></div>
-                      <div class="app-preview__lines">
-                        <div class="line"></div>
-                        <div class="line short"></div>
-                        <div class="line"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h3 class="usecase-item__title">Interactive Personal Portfolio</h3>
-              <p class="usecase-item__desc">Full-stack application with user authentication, custom role...</p>
-            </div>
-
-            <div class="usecase-item" data-usecase="1">
-              <div class="usecase-item__preview">
-                <div class="app-preview">
-                  <div class="app-preview__header">
-                    <div class="app-preview__dots">
-                      <span></span><span></span><span></span>
-                    </div>
-                  </div>
-                  <div class="app-preview__content">
-                    <div class="app-preview__stats">
-                      <div class="stat-item">
-                        <div class="stat-label"></div>
-                        <div class="stat-value"></div>
-                      </div>
-                      <div class="stat-item">
-                        <div class="stat-label"></div>
-                        <div class="stat-value large"></div>
-                      </div>
-                    </div>
-                    <div class="app-preview__chart"></div>
-                  </div>
-                </div>
-              </div>
-              <h3 class="usecase-item__title">Sales Lead Tracker & CRM</h3>
-              <p class="usecase-item__desc">Manage your sales pipeline with automated lead scoring &...</p>
-            </div>
-
-            <div class="usecase-item" data-usecase="2">
-              <div class="usecase-item__preview">
-                <div class="app-preview">
-                  <div class="app-preview__header">
-                    <div class="app-preview__dots">
-                      <span></span><span></span><span></span>
-                    </div>
-                  </div>
-                  <div class="app-preview__content">
-                    <div class="app-preview__bars">
-                      <div class="bar"></div>
-                      <div class="bar"></div>
-                      <div class="bar"></div>
-                    </div>
-                    <div class="app-preview__list">
-                      <div class="list-item"></div>
-                      <div class="list-item"></div>
-                      <div class="list-item"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h3 class="usecase-item__title">Customer Feedback System</h3>
-              <p class="usecase-item__desc">Gather user insights with automated sentiment analysis as...</p>
-            </div>
-
-            <div class="usecase-item" data-usecase="3">
-              <div class="usecase-item__preview">
-                <div class="app-preview">
-                  <div class="app-preview__header">
-                    <div class="app-preview__dots">
-                      <span></span><span></span><span></span>
-                    </div>
-                  </div>
-                  <div class="app-preview__content">
-                    <div class="app-preview__order">
-                      <div class="order-item"></div>
-                      <div class="order-item"></div>
-                      <div class="order-item"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h3 class="usecase-item__title">Restaurant Order System</h3>
-              <p class="usecase-item__desc">Dual-interface system for customer and kitchen staff wit...</p>
-            </div>
-          </div>
+        
+        <!-- Navigation Dots - 左侧 -->
+        <div class="absolute left-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 z-10">
+            <button class="view-dot w-2 h-2 rounded-full bg-white transition-all" data-view="0"></button>
+            <button class="view-dot w-2 h-2 rounded-full bg-gray-600 transition-all" data-view="1"></button>
+            <button class="view-dot w-2 h-2 rounded-full bg-gray-600 transition-all" data-view="2"></button>
+            <button class="view-dot w-2 h-2 rounded-full bg-gray-600 transition-all" data-view="3"></button>
         </div>
-      </div>
+    </section>
+    
+    <script>
+        // 视图动画初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewItems = document.querySelectorAll('.view-item');
+            const viewDots = document.querySelectorAll('.view-dot');
+            
+            // 更新导航点
+            function updateNavigationDots(index) {
+                viewDots.forEach((dot, i) => {
+                    if (i === index) {
+                        dot.classList.remove('bg-gray-600');
+                        dot.classList.add('bg-white', 'w-8');
+                    } else {
+                        dot.classList.remove('bg-white', 'w-8');
+                        dot.classList.add('bg-gray-600', 'w-2');
+                    }
+                });
+            }
+            
+            // 初始化第一个视图
+            if (viewItems.length > 0) {
+                viewItems[0].classList.add('active');
+                updateNavigationDots(0);
+            }
+            
+            // 导航点点击 - 平滑滚动到对应视图
+            viewDots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    if (viewItems[index]) {
+                        viewItems[index].scrollIntoView({ 
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Define, Design, Develop Section -->
+    <section class="px-6 bg-black/40" style="padding-top: 128px; padding-bottom: 128px;">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl md:text-6xl font-bold mb-6 text-center">
+                Define, design and develop on an infinite canvas.
+            </h2>
+            
+            <p class="text-xl text-gray-400 text-center mb-16 max-w-3xl mx-auto">
+                Organize your ideas in order, design beautifully, and turn them into production apps.
+            </p>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 01 -->
+                <div class="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 card-hover">
+                    <div class="flex items-start gap-6">
+                        <div class="number-badge">01</div>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold mb-3">Define with Logic</h3>
+                            <p class="text-gray-400 leading-relaxed">
+                                Think & Plan. Create PRDs and User Flows that act as the logical backbone.
+                            </p>
+                            <div class="mt-4 bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
+                                <div class="text-center">
+                                    <div class="text-green-400 font-bold mb-2">PRD</div>
+                                    <div class="flex gap-2 justify-center">
+                                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                        <div class="w-2 h-2 bg-teal-400 rounded-full"></div>
+                                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-2">Flowcharts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 02 -->
+                <div class="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 card-hover">
+                    <div class="flex items-start gap-6">
+                        <div class="number-badge">02</div>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold mb-3">Design like a Pro</h3>
+                            <p class="text-gray-400 leading-relaxed">
+                                Generate system high-taste UIs with an editable design that ensures consistency.
+                            </p>
+                            <div class="mt-4 bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
+                                <div class="w-full">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-16 h-3 bg-gray-700 rounded"></div>
+                                        <div class="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
+                                            <span class="text-gray-500 text-xs">×</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="h-2 bg-green-400/30 rounded"></div>
+                                        <div class="h-2 bg-teal-400/30 rounded w-3/4"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 03 -->
+                <div class="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 card-hover">
+                    <div class="flex items-start gap-6">
+                        <div class="number-badge">03</div>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold mb-3">Develop to Real</h3>
+                            <p class="text-gray-400 leading-relaxed">
+                                With production-ready app instantly, databases and APIs, and your code ready to deploy.
+                            </p>
+                            <div class="mt-4 bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
+                                <div class="w-full">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="w-16 h-3 bg-gray-700 rounded"></div>
+                                        <div class="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
+                                            <span class="text-gray-500 text-xs">×</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="h-2 bg-green-400/30 rounded"></div>
+                                        <div class="h-2 bg-teal-400/30 rounded w-3/4"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- Define, design and develop section -->
-    <section class="process-section">
-      <div class="process-section__inner">
-        <h2 class="process-section__title">Define, design and develop on an infinite canvas.</h2>
-        <p class="process-section__subtitle">Organize your ideas in order, design beautifully, and turn them into production apps.</p>
-        <div class="process-steps">
-          <div class="process-step">
-            <div class="process-step__number">01</div>
-            <div class="process-step__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
-              </svg>
+    <!-- Built for Every Role Section -->
+    <section class="px-6" style="padding-top: 128px; padding-bottom: 128px;">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl md:text-6xl font-bold mb-16 text-center">
+                Built for every role
+            </h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Startup -->
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Startup</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Ship your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously on one canvas.
+                    </p>
+                </div>
+                
+                <!-- Design & Develop Studio -->
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Design & Develop Studio</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Deliver high-fidelity production apps to clients faster. Maintain distinct design systems for every client project.
+                    </p>
+                </div>
+                
+                <!-- PM -->
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">PM (Product Manager)</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Turn PRDs into live, testable apps. Verify user flows and business logic without waiting for engineering cycles.
+                    </p>
+                </div>
+                
+                <!-- Product Designer -->
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 001 1h3a1 1 0 100-2h-3a1 1 0 00-1 1zm-9.75 0a.75.75 0 000 1.5A9.128 9.128 0 007.7 12.545a.75.75 0 001.134-.955A7.623 7.623 0 013.25 8z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Product Designer</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Design with real functional components. Ensure your vision is pixel-perfect in production, exactly as you designed it.
+                    </p>
+                </div>
+                
+                <!-- Engineer -->
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Engineer</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Skip the boilerplate setup. Get clean, modular code generated by the agent and focus on complex backend logic.
+                    </p>
+                </div>
+                
+                <!-- Marketing & Operation -->
+                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Marketing & Operation</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Launch campaign tools and landing pages without blocking engineering. Own your marketing stack from design to data.
+                    </p>
+                </div>
             </div>
-            <h3 class="process-step__title">Define with Logic</h3>
-            <p class="process-step__desc">Think & Plan. Create PRDs and User Flows that act as the logical backbone.</p>
-          </div>
-          <div class="process-step">
-            <div class="process-step__number">02</div>
-            <div class="process-step__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2"/>
-                <path d="M9 9h6M9 15h6M9 12h6"/>
-              </svg>
-            </div>
-            <h3 class="process-step__title">Design like a Pro</h3>
-            <p class="process-step__desc">Generate system high-fidelity UIs with an editable design that enhance consistency.</p>
-          </div>
-          <div class="process-step">
-            <div class="process-step__number">03</div>
-            <div class="process-step__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M8 7l-4 5 4 5M16 7l4 5-4 5M11 6l2 12"/>
-              </svg>
-            </div>
-            <h3 class="process-step__title">Develop to Real</h3>
-            <p class="process-step__desc">With production-ready data apps instantly, databases and APIs, ship your...</p>
-          </div>
         </div>
-      </div>
     </section>
 
-    <!-- Built for every role section -->
-    <section class="roles-section">
-      <div class="roles-section__inner">
-        <header class="roles-section__header">
-          <h2 class="roles-section__title">Built for every role</h2>
-        </header>
-        <div class="roles-grid">
-          <article class="role-card">
-            <div class="role-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M5 13l4 4L19 7"/>
-              </svg>
-            </div>
-            <h3 class="role-card__title">Startup</h3>
-            <p class="role-card__desc">Skip your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously on one canvas.</p>
-          </article>
-          <article class="role-card">
-            <div class="role-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="4" y="4" width="7" height="7" rx="1.5"/>
-                <rect x="13" y="4" width="7" height="14" rx="1.5"/>
-                <rect x="4" y="13" width="7" height="7" rx="1.5"/>
-              </svg>
-            </div>
-            <h3 class="role-card__title">Design & Develop Studio</h3>
-            <p class="role-card__desc">Deliver high-fidelity production apps to clients faster. Maintain distinct design systems for every client project.</p>
-          </article>
-          <article class="role-card">
-            <div class="role-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="8"/>
-                <path d="M12 8v4l2.5 2.5"/>
-              </svg>
-            </div>
-            <h3 class="role-card__title">PM</h3>
-            <p class="role-card__desc">Turn PRDs into live, testable apps. Verify user flows and business logic without waiting for engineering cycles.</p>
-          </article>
-          <article class="role-card">
-            <div class="role-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M5 5h11l3 3v11H5z"/>
-                <path d="M9 14l6-6"/>
-              </svg>
-            </div>
-            <h3 class="role-card__title">Product Designer</h3>
-            <p class="role-card__desc">Design with real functional components. Ensure your vision is pixel-perfect in production, exactly as you designed it.</p>
-          </article>
-          <article class="role-card">
-            <div class="role-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M8 7l-4 5 4 5M16 7l4 5-4 5M11 6l2 12"/>
-              </svg>
-            </div>
-            <h3 class="role-card__title">Engineer</h3>
-            <p class="role-card__desc">Skip the boilerplate setup. Get clean, modular code generated by the agent and focus on complex backend logic.</p>
-          </article>
-          <article class="role-card">
-            <div class="role-card__icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10"/>
-                <circle cx="12" cy="12" r="6"/>
-                <circle cx="12" cy="12" r="2"/>
-              </svg>
-            </div>
-            <h3 class="role-card__title">Marketing & Operation</h3>
-            <p class="role-card__desc">Launch campaign tools and landing pages without blocking engineering. Own your marketing stack from design to data.</p>
-          </article>
+    <!-- Final CTA Section -->
+    <section class="px-6 bg-black/40" style="padding-top: 128px; padding-bottom: 128px;">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-5xl md:text-6xl font-bold mb-10">
+                Start creating with The Visual Coding Agent.
+            </h2>
+            <button class="glow-button px-10 py-5 font-semibold text-black text-xl">
+                Start building now
+            </button>
         </div>
-      </div>
-    </section>
-
-    <!-- Bottom CTA -->
-    <section class="cta-section">
-      <div class="cta-section__inner">
-        <h2 class="cta-section__title">Start creating with The Visual Coding Agent.</h2>
-        <a href="#" class="btn btn-primary btn-large">Start building now</a>
-      </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
-      <div class="footer__inner">
-        <div class="footer__brand">
-          <div class="topbar__brand">
-            <img src="./logo.svg" alt="Paraflow" class="brand-logo" />
-          </div>
-          <p class="footer__tagline">The infinite canvas for building real software. From idea to production in one flow.</p>
+    <footer class="border-t border-gray-800 py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="text-2xl font-bold mb-3">@Paraflow</div>
+                    <p class="text-gray-400 text-sm">
+                        The infinite canvas for building real software. From idea to production in one flow.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4 text-gray-300">PRODUCT</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Define</a></li>
+                        <li><a href="#" class="hover:text-white transition">Design</a></li>
+                        <li><a href="#" class="hover:text-white transition">Develop</a></li>
+                        <li><a href="#" class="hover:text-white transition">What's New</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4 text-gray-300">RESOURCES</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4 text-gray-300">LEGAL</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Privacy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
+                <div class="text-sm text-gray-400 mb-4 md:mb-0">
+                    © 2026 PARAFLOW INC. <a href="#" class="hover:text-white transition">Privacy policy</a> <a href="#" class="hover:text-white transition">Terms of service</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="footer__links">
-          <div class="footer__column">
-            <h4 class="footer__column-title">Product</h4>
-            <a href="#" class="footer__link">Define</a>
-            <a href="#" class="footer__link">Design</a>
-            <a href="#" class="footer__link">Develop</a>
-            <a href="#" class="footer__link">What's New</a>
-          </div>
-          <div class="footer__column">
-            <h4 class="footer__column-title">Resources</h4>
-            <a href="#" class="footer__link">Blog</a>
-            <a href="#" class="footer__link">Tutorials</a>
-            <a href="#" class="footer__link">Contact</a>
-          </div>
-          <div class="footer__column">
-            <h4 class="footer__column-title">Legal</h4>
-            <a href="#" class="footer__link">Privacy</a>
-            <a href="#" class="footer__link">Terms</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer__bottom">
-        <div class="footer__bottom-inner">
-          <p class="footer__copyright">© 2024 PARAFLOW INC.</p>
-          <div class="footer__legal-links">
-            <a href="#" class="footer__legal-link">Privacy policy</a>
-            <span class="footer__separator">•</span>
-            <a href="#" class="footer__legal-link">Terms of service</a>
-          </div>
-          <div class="footer__social">
-            <a href="#" class="footer__social-link" aria-label="Discord">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-              </svg>
-            </a>
-            <a href="#" class="footer__social-link" aria-label="X (Twitter)">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-            </a>
-            <a href="#" class="footer__social-link" aria-label="YouTube">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </div>
     </footer>
-
-    <script>
-      // 整屏滚动切换功能
-      (function() {
-        const appsSection = document.querySelector('.apps-section');
-        const contentSlides = document.querySelectorAll('.app-content-slide');
-        const usecaseItems = document.querySelectorAll('.usecase-item');
-        const totalSlides = contentSlides.length;
-        
-        let currentSlide = 0;
-        let ticking = false;
-
-        // 更新当前激活的 slide
-        function updateActiveSlide(slideIndex) {
-          if (slideIndex < 0 || slideIndex >= totalSlides) return;
-          if (slideIndex === currentSlide) return;
-          
-          currentSlide = slideIndex;
-
-          // 更新左侧内容
-          contentSlides.forEach((slide, index) => {
-            if (index === slideIndex) {
-              slide.classList.add('active');
-            } else {
-              slide.classList.remove('active');
-            }
-          });
-
-          // 更新右侧 use case 高亮
-          usecaseItems.forEach((item, index) => {
-            if (index === slideIndex) {
-              item.classList.add('active');
-              // 平滑滚动到激活的 use case
-              setTimeout(() => {
-                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-              }, 100);
-            } else {
-              item.classList.remove('active');
-            }
-          });
-        }
-
-        // 处理滚动事件
-        function handleScroll() {
-          if (ticking) return;
-          
-          ticking = true;
-          requestAnimationFrame(() => {
-            const rect = appsSection.getBoundingClientRect();
-            const windowHeight = window.innerHeight;
-            const sectionTop = rect.top;
-            const sectionHeight = rect.height;
-            
-            // 计算当前应该显示哪个 slide
-            // apps-section 高度是 400vh (4 * 100vh)，每个 slide 占 100vh
-            // 当 section 顶部在视口顶部时，显示第一个 slide
-            // 当 section 顶部在视口底部时，显示最后一个 slide
-            const scrollProgress = Math.max(0, Math.min(1, 
-              (windowHeight - sectionTop) / (sectionHeight - windowHeight)
-            ));
-            
-            // 计算当前 slide，使用更精确的计算
-            let newSlide = Math.floor(scrollProgress * (totalSlides - 1));
-            
-            // 边界处理
-            if (sectionTop > windowHeight) {
-              newSlide = 0;
-            } else if (sectionTop + sectionHeight < 0) {
-              newSlide = totalSlides - 1;
-            } else {
-              // 使用更平滑的切换逻辑
-              const slideProgress = (scrollProgress * (totalSlides - 1)) % 1;
-              newSlide = Math.floor(scrollProgress * (totalSlides - 1));
-              if (slideProgress > 0.5 && newSlide < totalSlides - 1) {
-                newSlide += 1;
-              }
-            }
-            
-            if (newSlide !== currentSlide && newSlide >= 0 && newSlide < totalSlides) {
-              updateActiveSlide(newSlide);
-            }
-            
-            ticking = false;
-          });
-        }
-
-        // 为 use case 添加点击事件
-        usecaseItems.forEach((item, index) => {
-          item.addEventListener('click', () => {
-            const targetScroll = appsSection.offsetTop + (index * window.innerHeight);
-            window.scrollTo({
-              top: targetScroll,
-              behavior: 'smooth'
-            });
-            // 延迟更新，等待滚动完成
-            setTimeout(() => {
-              updateActiveSlide(index);
-            }, 300);
-          });
-        });
-
-        // 使用 Intersection Observer 作为主要检测方法
-        const observerOptions = {
-          root: null,
-          rootMargin: '-40% 0px -40% 0px',
-          threshold: [0, 0.25, 0.5, 0.75, 1]
-        };
-
-        // 为每个 slide 创建观察点
-        const slideMarkers = [];
-        for (let i = 0; i < totalSlides; i++) {
-          const marker = document.createElement('div');
-          marker.style.position = 'absolute';
-          marker.style.top = `${i * 100}vh`;
-          marker.style.height = '1px';
-          marker.style.width = '1px';
-          marker.style.pointerEvents = 'none';
-          marker.style.opacity = '0';
-          marker.dataset.slide = i;
-          appsSection.appendChild(marker);
-          slideMarkers.push(marker);
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-              const slideIndex = parseInt(entry.target.dataset.slide);
-              if (slideIndex !== currentSlide) {
-                updateActiveSlide(slideIndex);
-              }
-            }
-          });
-        }, observerOptions);
-
-        slideMarkers.forEach(marker => observer.observe(marker));
-
-        // 初始化
-        updateActiveSlide(0);
-
-        // 监听滚动事件（作为备用方案）
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        
-        // 监听窗口大小变化
-        window.addEventListener('resize', () => {
-          handleScroll();
-        }, { passive: true });
-      })();
-    </script>
-  </body>
+</body>
 </html>
