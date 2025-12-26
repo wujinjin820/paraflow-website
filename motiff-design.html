@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初稿 - Paraflow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand': '#00BF4B',
+                        'gray-dark': '#262626',
+                        'gray-light': '#DADCE0',
+                        'gray-icon': '#828A99',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-black text-white" style="width: 1920px; min-height: 4730px;">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-gray-800">
+        <div class="max-w-[1920px] mx-auto px-8 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-12">
+                <span class="text-sm text-gray-400">初稿</span>
+                <div class="text-xl font-bold">Paraflow</div>
+                <nav class="flex items-center gap-8">
+                    <a href="#" class="text-gray-300 hover:text-white text-sm font-medium transition">Product</a>
+                    <a href="#" class="text-gray-300 hover:text-white text-sm font-medium transition">Use Cases</a>
+                    <a href="#" class="text-gray-300 hover:text-white text-sm font-medium transition">Learn</a>
+                    <a href="#" class="text-gray-300 hover:text-white text-sm font-medium transition">Pricing</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#" class="text-gray-300 hover:text-white text-sm font-medium transition">Log in</a>
+                <a href="#" class="bg-brand hover:bg-[#00d955] text-black font-semibold px-6 py-2.5 rounded-lg text-sm transition">Start free</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-24 px-8 relative overflow-hidden" style="min-height: 800px;">
+        <!-- Geometric Pattern Background -->
+        <div class="absolute inset-0 pointer-events-none opacity-30">
+            <svg class="w-full h-full" viewBox="0 0 1920 800" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6" />
+                        <stop offset="50%" style="stop-color:#ffffff;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0.6" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <!-- Left Diamond (Define) -->
+                <path d="M 200 100 L 960 400 L 200 700 Z" fill="none" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.95" filter="url(#glow)"/>
+                <!-- Right Diamond (Develop) -->
+                <path d="M 960 400 L 1720 100 L 1720 700 Z" fill="none" stroke="url(#lineGrad)" stroke-width="1.5" opacity="0.95" filter="url(#glow)"/>
+                <!-- Center Point -->
+                <circle cx="960" cy="400" r="3" fill="#ffffff" opacity="0.8" filter="url(#glow)"/>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto relative z-10">
+            <!-- Define → Design → Develop -->
+            <div class="flex items-center justify-center gap-3 mb-12">
+                <span class="text-brand font-semibold text-lg">Define</span>
+                <span class="text-gray-500 text-xl">→</span>
+                <span class="text-brand font-semibold text-lg">Design</span>
+                <span class="text-gray-500 text-xl">→</span>
+                <span class="text-brand font-semibold text-lg">Develop</span>
+            </div>
+
+            <!-- Main Title -->
+            <h1 class="text-7xl md:text-8xl font-bold text-center mb-8 leading-tight tracking-tight">
+                The Visual <span class="text-brand">Coding</span> Agent
+            </h1>
+
+            <!-- Subtitle -->
+            <p class="text-2xl text-gray-400 text-center mb-12 max-w-3xl mx-auto leading-relaxed">
+                Vibe coding tools make apps. The Visual Coding Agent builds real apps.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex items-center justify-center gap-4">
+                <a href="#" class="bg-brand hover:bg-[#00d955] text-black font-semibold px-8 py-4 rounded-lg text-lg transition shadow-lg shadow-brand/30">
+                    Start building now
+                </a>
+                <a href="#" class="text-white hover:text-gray-300 font-medium px-8 py-4 text-lg transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                    </svg>
+                    Watch a video
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Build complete apps section -->
+    <section class="py-20 px-8 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <!-- Left Content -->
+                <div>
+                    <h2 class="text-5xl font-bold mb-6 leading-tight">
+                        Build complete apps, front to back.
+                    </h2>
+                    <p class="text-xl text-gray-400 mb-8 leading-relaxed">
+                        Design UI, define logic, and work with real data in one canvas. No handoff. No glue code. Just shippable software.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-brand mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-300">Design UI, define logic, and work with real data in one canvas.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-brand mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-300">No handoff. No glue code.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <svg class="w-6 h-6 text-brand mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-300">Just shippable software.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- App Card 1 -->
+                    <div class="bg-gray-dark border border-gray-800 rounded-xl p-4 hover:border-brand/30 transition">
+                        <div class="bg-black rounded-lg h-40 mb-3 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-brand mb-1">Dashboard</div>
+                                <div class="text-xs text-gray-400">Auth + Roles</div>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-sm mb-1 text-white">Interactive Personal Portfolio</h3>
+                        <p class="text-xs text-gray-400">User authentication and custom roles</p>
+                    </div>
+
+                    <!-- App Card 2 -->
+                    <div class="bg-gray-dark border border-gray-800 rounded-xl p-4 hover:border-brand/30 transition">
+                        <div class="bg-black rounded-lg h-40 mb-3 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-brand mb-1">482</div>
+                                <div class="text-lg font-semibold text-brand">$12.8M</div>
+                                <div class="text-xs text-gray-400 mt-1">Revenue</div>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-sm mb-1 text-white">Sales Lead Tracker & CRM</h3>
+                        <p class="text-xs text-gray-400">Real-time metrics and tracking</p>
+                    </div>
+
+                    <!-- App Card 3 -->
+                    <div class="bg-gray-dark border border-gray-800 rounded-xl p-4 hover:border-brand/30 transition">
+                        <div class="bg-black rounded-lg h-40 mb-3 flex items-center justify-center">
+                            <div class="w-full px-2">
+                                <div class="h-20 bg-gradient-to-t from-brand/30 to-brand/10 rounded mb-2"></div>
+                                <div class="text-xs text-gray-400 text-center">Sentiment</div>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-sm mb-1 text-white">Customer Feedback System</h3>
+                        <p class="text-xs text-gray-400">Real-time analysis</p>
+                    </div>
+
+                    <!-- App Card 4 -->
+                    <div class="bg-gray-dark border border-gray-800 rounded-xl p-4 hover:border-brand/30 transition">
+                        <div class="bg-black rounded-lg h-40 mb-3 flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-brand mb-1">2302.76</div>
+                                <div class="w-16 h-16 mx-auto mt-2 rounded-full border-4 border-brand border-t-transparent animate-spin" style="animation-duration: 2s;"></div>
+                                <div class="text-xs text-gray-400 mt-1">Dual Interface</div>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold text-sm mb-1 text-white">Restaurant Order System</h3>
+                        <p class="text-xs text-gray-400">Dashboard with analytics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Define, design and develop section -->
+    <section class="py-20 px-8 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-bold mb-6 text-center leading-tight">
+                Define, design and develop on an infinite canvas.
+            </h2>
+            <p class="text-xl text-gray-400 text-center mb-16 max-w-3xl mx-auto">
+                Organize your ideas in code, design beautifully, and turn them into production apps.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 01 -->
+                <div class="bg-gray-dark border border-gray-800 rounded-2xl p-8 hover:border-brand/30 transition">
+                    <div class="flex items-start gap-6">
+                        <div class="bg-brand text-black font-bold text-2xl w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand/30">
+                            01
+                        </div>
+                        <div class="flex-1">
+                            <div class="w-12 h-12 bg-black rounded-lg mb-4 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-brand" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3 text-white">Define with Logic</h3>
+                            <p class="text-gray-400 leading-relaxed">
+                                Think & Plan. Create PRDs and User Flows that act as the logical backbone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 02 -->
+                <div class="bg-gray-dark border border-gray-800 rounded-2xl p-8 hover:border-brand/30 transition">
+                    <div class="flex items-start gap-6">
+                        <div class="bg-brand text-black font-bold text-2xl w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand/30">
+                            02
+                        </div>
+                        <div class="flex-1">
+                            <div class="w-12 h-12 bg-black rounded-lg mb-4 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-brand" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3 text-white">Design like a Pro</h3>
+                            <p class="text-gray-400 leading-relaxed">
+                                Generate system high-fidelity UIs with an editable design that enhance consistency.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 03 -->
+                <div class="bg-gray-dark border border-gray-800 rounded-2xl p-8 hover:border-brand/30 transition">
+                    <div class="flex items-start gap-6">
+                        <div class="bg-brand text-black font-bold text-2xl w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg shadow-brand/30">
+                            03
+                        </div>
+                        <div class="flex-1">
+                            <div class="w-12 h-12 bg-black rounded-lg mb-4 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-brand" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3 text-white">Develop to Real</h3>
+                            <p class="text-gray-400 leading-relaxed">
+                                With production-ready data apps instantly, databases and APIs, ship your...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Built for every role section -->
+    <section class="py-20 px-8 bg-black">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-bold mb-16 text-center leading-tight">
+                Built for every role
+            </h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Startup -->
+                <div class="bg-gray-dark border border-gray-800 rounded-xl p-6 hover:border-brand/30 transition">
+                    <div class="w-12 h-12 bg-brand rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Startup</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Skip your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously on one canvas.
+                    </p>
+                </div>
+
+                <!-- Design & Develop Studio -->
+                <div class="bg-gray-dark border border-gray-800 rounded-xl p-6 hover:border-brand/30 transition">
+                    <div class="w-12 h-12 bg-brand rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Design & Develop Studio</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Deliver high-fidelity production apps to clients faster. Maintain distinct design systems for every client project.
+                    </p>
+                </div>
+
+                <!-- PM -->
+                <div class="bg-gray-dark border border-gray-800 rounded-xl p-6 hover:border-brand/30 transition">
+                    <div class="w-12 h-12 bg-brand rounded-xl flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2 text-white">PM</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Turn PRDs into live, testable apps. Verify user flows and business logic without waiting for engineering cycles.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+
+

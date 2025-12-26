@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>双钻模型 - The Visual Coding Agent</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #020402;
+      color: #f5f5f5;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    .header h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #1afc71, #13c46b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      font-size: 18px;
+      color: #9fa9a0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* 双钻模型容器 */
+    .diamond-container {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      margin: 60px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 画布背景 */
+    .canvas-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(60% 60% at 50% 50%, rgba(26, 252, 113, 0.08), transparent 70%);
+      border-radius: 24px;
+    }
+
+    /* SVG 容器 */
+    .diamond-svg {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* 阶段标签 */
+    .stage-label {
+      position: absolute;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1afc71;
+      text-shadow: 0 0 20px rgba(26, 252, 113, 0.5);
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .stage-define {
+      left: 15%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .stage-design {
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 28px;
+    }
+
+    .stage-develop {
+      right: 15%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* 能量粒子动画 */
+    @keyframes converge {
+      0% {
+        opacity: 0;
+        transform: translate(var(--start-x), var(--start-y)) scale(0);
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(0, 0) scale(1);
+      }
+    }
+
+    @keyframes transform {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
+    }
+
+    @keyframes diverge {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      50% {
+        opacity: 0.8;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--end-x), var(--end-y)) scale(0);
+      }
+    }
+
+    @keyframes feedback-up {
+      0% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        stroke-dashoffset: 0;
+        opacity: 0.6;
+      }
+    }
+
+    @keyframes feedback-down {
+      0% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        stroke-dashoffset: 0;
+        opacity: 0.6;
+      }
+    }
+
+    /* 说明卡片 */
+    .info-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 80px;
+    }
+
+    .info-card {
+      padding: 32px;
+      background: rgba(12, 16, 12, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+      border-color: rgba(26, 252, 113, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .info-card__number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(26, 252, 113, 0.14);
+      border: 1px solid rgba(26, 252, 113, 0.4);
+      color: #1afc71;
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-card h3 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      color: #1afc71;
+    }
+
+    .info-card p {
+      color: #c7d3c7;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    /* 响应式 */
+    @media (max-width: 1024px) {
+      .diamond-container {
+        height: 500px;
+      }
+
+      .info-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .diamond-container {
+        height: 400px;
+      }
+
+      .stage-label {
+        font-size: 18px;
+      }
+
+      .stage-design {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>The Visual Coding Agent</h1>
+      <p>通过双钻模型，将想法转化为真实应用的能量转换系统</p>
+    </div>
+
+    <div class="diamond-container">
+      <div class="canvas-bg"></div>
+      
+      <svg class="diamond-svg" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <!-- 能量流渐变 -->
+          <linearGradient id="energyGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#1afc71;stop-opacity:0.3" />
+            <stop offset="50%" style="stop-color:#1afc71;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#13c46b;stop-opacity:0.3" />
+          </linearGradient>
+
+          <!-- 粒子发光效果 -->
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+
+          <!-- 能量脉冲 -->
+          <radialGradient id="pulseGradient">
+            <stop offset="0%" style="stop-color:#1afc71;stop-opacity:0.8" />
+            <stop offset="100%" style="stop-color:#1afc71;stop-opacity:0" />
+          </radialGradient>
+        </defs>
+
+        <!-- 左侧收敛（Define阶段） -->
+        <g id="converge-group">
+          <!-- 汇聚线 -->
+          <line x1="50" y1="50" x2="200" y2="200" stroke="#1afc71" stroke-width="1.5" opacity="0.4" />
+          <line x1="50" y1="350" x2="200" y2="200" stroke="#1afc71" stroke-width="1.5" opacity="0.4" />
+          <line x1="100" y1="100" x2="200" y2="200" stroke="#1afc71" stroke-width="2" opacity="0.5" />
+          <line x1="100" y1="300" x2="200" y2="200" stroke="#1afc71" stroke-width="2" opacity="0.5" />
+          
+          <!-- 主汇聚弧线 -->
+          <path d="M 200 100 Q 250 150 200 200" fill="none" stroke="url(#energyGradient)" stroke-width="4" opacity="0.6" />
+          <path d="M 200 300 Q 250 250 200 200" fill="none" stroke="url(#energyGradient)" stroke-width="4" opacity="0.6" />
+        </g>
+
+        <!-- 中心转换节点（Design阶段） -->
+        <g id="transform-group">
+          <circle cx="500" cy="200" r="60" fill="none" stroke="#1afc71" stroke-width="3" opacity="0.6" />
+          <circle cx="500" cy="200" r="40" fill="url(#pulseGradient)" opacity="0.4">
+            <animate attributeName="r" values="40;50;40" dur="2s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.4;0.7;0.4" dur="2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="500" cy="200" r="25" fill="#1afc71" opacity="0.8" filter="url(#glow)" />
+        </g>
+
+        <!-- 右侧发散（Develop阶段） -->
+        <g id="diverge-group">
+          <!-- 主发散弧线 -->
+          <path d="M 800 200 Q 750 150 800 100" fill="none" stroke="url(#energyGradient)" stroke-width="4" opacity="0.6" />
+          <path d="M 800 200 Q 750 250 800 300" fill="none" stroke="url(#energyGradient)" stroke-width="4" opacity="0.6" />
+          
+          <!-- 发散线 -->
+          <line x1="800" y1="200" x2="900" y2="100" stroke="#1afc71" stroke-width="2" opacity="0.5" />
+          <line x1="800" y1="200" x2="900" y2="300" stroke="#1afc71" stroke-width="2" opacity="0.5" />
+          <line x1="800" y1="200" x2="950" y2="50" stroke="#1afc71" stroke-width="1.5" opacity="0.4" />
+          <line x1="800" y1="200" x2="950" y2="350" stroke="#1afc71" stroke-width="1.5" opacity="0.4" />
+        </g>
+
+        <!-- 主能量流（Define → Design → Develop） -->
+        <line x1="200" y1="200" x2="500" y2="200" stroke="#1afc71" stroke-width="5" opacity="0.8" filter="url(#glow)" />
+        <line x1="500" y1="200" x2="800" y2="200" stroke="#1afc71" stroke-width="5" opacity="0.8" filter="url(#glow)" />
+
+        <!-- 反馈回路1：Design → Develop（向上） -->
+        <path d="M 500 160 Q 650 100 800 160" fill="none" stroke="#1afc71" stroke-width="3" opacity="0.5" stroke-dasharray="5,5">
+          <animate attributeName="stroke-dashoffset" values="0;20" dur="2s" repeatCount="indefinite" />
+        </path>
+
+        <!-- 反馈回路2：Design → Define（向下） -->
+        <path d="M 500 240 Q 350 300 200 240" fill="none" stroke="#1afc71" stroke-width="3" opacity="0.5" stroke-dasharray="5,5">
+          <animate attributeName="stroke-dashoffset" values="0;20" dur="2s" repeatCount="indefinite" />
+        </path>
+
+        <!-- 能量粒子（Define阶段汇聚） -->
+        <circle class="particle" cx="50" cy="50" r="3" fill="#1afc71" filter="url(#glow)">
+          <animate attributeName="cx" values="50;200" dur="3s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="50;200" dur="3s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle class="particle" cx="50" cy="350" r="3" fill="#1afc71" filter="url(#glow)">
+          <animate attributeName="cx" values="50;200" dur="3s" repeatCount="indefinite" begin="0.5s" />
+          <animate attributeName="cy" values="350;200" dur="3s" repeatCount="indefinite" begin="0.5s" />
+          <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" begin="0.5s" />
+        </circle>
+
+        <!-- 能量粒子（Develop阶段发散） -->
+        <circle class="particle" cx="800" cy="200" r="3" fill="#1afc71" filter="url(#glow)">
+          <animate attributeName="cx" values="800;950" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="200;50" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle class="particle" cx="800" cy="200" r="3" fill="#1afc71" filter="url(#glow)">
+          <animate attributeName="cx" values="800;950" dur="2s" repeatCount="indefinite" begin="0.3s" />
+          <animate attributeName="cy" values="200;350" dur="2s" repeatCount="indefinite" begin="0.3s" />
+          <animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite" begin="0.3s" />
+        </circle>
+      </svg>
+
+      <!-- 阶段标签 -->
+      <div class="stage-label stage-define">Define</div>
+      <div class="stage-label stage-design">Design</div>
+      <div class="stage-label stage-develop">Develop</div>
+    </div>
+
+    <!-- 说明卡片 -->
+    <div class="info-cards">
+      <div class="info-card">
+        <div class="info-card__number">01</div>
+        <h3>Define - 能量收敛</h3>
+        <p>想法和需求从四面八方汇聚，通过逻辑框架聚焦为清晰的问题定义。这是能量转换的起点，将混沌转化为结构。</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card__number">02</div>
+        <h3>Design - 能量转换</h3>
+        <p>在中心节点，抽象的定义转化为具象的设计。Visual Coding Agent 作为催化剂，加速从逻辑到视觉的转换过程。</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card__number">03</div>
+        <h3>Develop - 能量释放</h3>
+        <p>转换后的能量向外扩散，生成生产级代码、数据库和API。这是能量场的最终输出，将设计释放为真实可用的应用。</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 添加交互效果：鼠标移动影响能量场
+    const svg = document.querySelector('.diamond-svg');
+    const transformGroup = document.getElementById('transform-group');
+    
+    svg.addEventListener('mousemove', (e) => {
+      const rect = svg.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 1000;
+      const y = ((e.clientY - rect.top) / rect.height) * 400;
+      
+      const centerX = 500;
+      const centerY = 200;
+      const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+      
+      if (distance < 150) {
+        const intensity = 1 - (distance / 150);
+        transformGroup.style.transform = `scale(${1 + intensity * 0.1})`;
+        transformGroup.style.opacity = 0.6 + intensity * 0.4;
+      } else {
+        transformGroup.style.transform = 'scale(1)';
+        transformGroup.style.opacity = 0.6;
+      }
+    });
+
+    // 创建更多动态粒子
+    function createParticle(x, y, targetX, targetY, delay = 0) {
+      const svg = document.querySelector('.diamond-svg');
+      const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      particle.setAttribute('cx', x);
+      particle.setAttribute('cy', y);
+      particle.setAttribute('r', '2.5');
+      particle.setAttribute('fill', '#1afc71');
+      particle.setAttribute('filter', 'url(#glow)');
+      particle.setAttribute('opacity', '0');
+      
+      const animateX = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animateX.setAttribute('attributeName', 'cx');
+      animateX.setAttribute('values', `${x};${targetX}`);
+      animateX.setAttribute('dur', '2.5s');
+      animateX.setAttribute('repeatCount', 'indefinite');
+      animateX.setAttribute('begin', delay + 's');
+      
+      const animateY = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animateY.setAttribute('attributeName', 'cy');
+      animateY.setAttribute('values', `${y};${targetY}`);
+      animateY.setAttribute('dur', '2.5s');
+      animateY.setAttribute('repeatCount', 'indefinite');
+      animateY.setAttribute('begin', delay + 's');
+      
+      const animateOpacity = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+      animateOpacity.setAttribute('attributeName', 'opacity');
+      animateOpacity.setAttribute('values', '0;1;0');
+      animateOpacity.setAttribute('dur', '2.5s');
+      animateOpacity.setAttribute('repeatCount', 'indefinite');
+      animateOpacity.setAttribute('begin', delay + 's');
+      
+      particle.appendChild(animateX);
+      particle.appendChild(animateY);
+      particle.appendChild(animateOpacity);
+      svg.appendChild(particle);
+    }
+
+    // 定期创建新粒子
+    setInterval(() => {
+      // Define阶段汇聚粒子
+      createParticle(50, 50, 200, 200, 0);
+      createParticle(50, 350, 200, 200, 0.2);
+      createParticle(100, 100, 200, 200, 0.4);
+      createParticle(100, 300, 200, 200, 0.6);
+      
+      // Develop阶段发散粒子
+      createParticle(800, 200, 950, 50, 0);
+      createParticle(800, 200, 950, 350, 0.2);
+      createParticle(800, 200, 900, 100, 0.4);
+      createParticle(800, 200, 900, 300, 0.6);
+    }, 3000);
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
