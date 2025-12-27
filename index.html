@@ -4,264 +4,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paraflow - The Visual Coding Agent</title>
-    <!-- Version: 3.0 - Latest -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        :root {
+            --primary: #00BF4B;
+            --primary-glow: rgba(0, 191, 75, 0.4);
+            --line-color: rgba(255, 255, 255, 0.15);
+            --line-color-hover: rgba(0, 191, 75, 0.3);
+            --dot-color: rgba(255, 255, 255, 0.3);
+        }
         
         body {
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            overflow-y: auto;
+            background: #0a0a0a;
         }
         
-        /* 硬件加速 */
-        .view-item {
-            will-change: transform;
-            transform: translateZ(0);
+        /* 全局标题样式 */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 500 !important;
+        }
+
+        /* ===== 全局结构线系统 ===== */
+        
+        /* 固定的垂直结构线 */
+        .global-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .v-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--line-color);
+        }
+        
+        .v-line-1 { left: 5%; }
+        .v-line-2 { left: 50%; }
+        .v-line-3 { right: 5%; }
+        
+        /* 角落装饰点 */
+        .corner-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .corner-dot.top-left { top: 72px; left: 5%; transform: translate(-50%, 0); }
+        .corner-dot.top-right { top: 72px; right: 5%; transform: translate(50%, 0); }
+        .corner-dot.top-center { top: 72px; left: 50%; transform: translate(-50%, 0); }
+        
+        /* Section 水平分割线 */
+        .section-line {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 1px;
+            background: var(--line-color);
+        }
+        
+        .section-line.top { top: 0; }
+        .section-line.bottom { bottom: 0; }
+        
+        /* 交叉装饰点 */
+        .cross-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--dot-color);
+        }
+        
+        .cross-dot::before,
+        .cross-dot::after {
+            content: '';
+            position: absolute;
+            background: var(--dot-color);
+        }
+        
+        .cross-dot::before {
+            width: 12px;
+            height: 1px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .cross-dot::after {
+            width: 1px;
+            height: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         
         .coding-text {
-            font-family: 'Pixelify Sans', monospace;
-            font-size: 0.95em;
-            letter-spacing: 0.08em;
-            display: inline-block;
-            text-align: center;
-            margin: 0 16px;
-            image-rendering: pixelated;
-            -webkit-font-smoothing: none;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        .gradient-bg {
-            background: linear-gradient(180deg, #000000 0%, #0a0a0a 100%);
-        }
-        
-        .geometric-pattern {
-            position: relative;
-            width: 100%;
-            height: 500px;
-            overflow: hidden;
-        }
-        
-        .diamond-shape {
-            position: absolute;
-            width: 250px;
-            height: 250px;
-            border: 3px solid;
-            transform: rotate(45deg);
-            opacity: 0.4;
-        }
-        
-        .diamond-shape::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            width: 80%;
-            height: 80%;
-            border: 2px solid;
-            opacity: 0.6;
-        }
-        
-        .diamond-shape-1 {
-            top: 15%;
-            left: 15%;
-            border-color: #00ff88;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-        }
-        
-        .diamond-shape-1::before {
-            border-color: #00ff88;
-        }
-        
-        .diamond-shape-2 {
-            top: 25%;
-            right: 15%;
-            border-color: #00d9ff;
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
-        }
-        
-        .diamond-shape-2::before {
-            border-color: #00d9ff;
-        }
-        
-        .flow-arrow {
-            position: absolute;
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, #00ff88, #00d9ff);
-            opacity: 0.6;
-        }
-        
-        .flow-arrow::after {
-            content: '';
-            position: absolute;
-            right: -8px;
-            top: -4px;
-            width: 0;
-            height: 0;
-            border-left: 10px solid #00d9ff;
-            border-top: 6px solid transparent;
-            border-bottom: 6px solid transparent;
+            font-family: 'VT323', monospace;
+            font-size: 1.15em;
+            letter-spacing: 0.05em;
+            display: inline;
+            color: #ffffff;
+            margin: 0 8px;
         }
         
         .glow-button {
             background: #00BF4B;
-            box-shadow: 0 0 20px rgba(0, 191, 75, 0.4), 0 0 40px rgba(0, 191, 75, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 191, 75, 0.3);
             transition: all 0.3s ease;
             border-radius: 12px;
             color: #ffffff;
+            font-weight: 600;
         }
         
         .glow-button:hover {
-            background: #00d955;
-            box-shadow: 0 0 30px rgba(0, 191, 75, 0.6), 0 0 60px rgba(0, 191, 75, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 191, 75, 0.5);
         }
-        
-        /* 卡片描述固定2行高度 */
-        .bg-gray-900 p.text-sm.text-gray-400 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            height: 40px;
-            line-height: 1.4;
-        }
-        
-        .number-badge {
-            background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%);
-            width: 64px;
-            height: 64px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 26px;
-            color: #000;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.1);
-        }
-        
-        .app-card {
-            background: rgba(15, 15, 15, 0.9);
-            border: 1px solid rgba(0, 255, 136, 0.15);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .app-card:hover {
-            border-color: rgba(0, 255, 136, 0.3);
-            background: rgba(20, 20, 20, 0.95);
-        }
-        
-        .fullscreen-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .view-item {
-            padding-top: 128px;
-            padding-bottom: 128px;
-        }
-        
-        .view-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .view-item {
-            width: 100%;
-            padding-top: 128px;
-            padding-bottom: 128px;
-            transition: transform 0.6s ease-in-out;
-        }
-        
-        .view-item.active {
-            opacity: 1 !important;
-            pointer-events: auto !important;
-        }
-        
-        /* 文字动画 */
-        .view-item .left-content > * {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        
-        .view-item.active .left-content > *:nth-child(1) {
-            transition-delay: 0.1s;
-        }
-        
-        .view-item.active .left-content > *:nth-child(2) {
-            transition-delay: 0.2s;
-        }
-        
-        .view-item.active .left-content > *:nth-child(3) {
-            transition-delay: 0.3s;
-        }
-        
-        .view-item.active .left-content > * {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* 卡片动画 */
-        .view-item .right-cards > * {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        
-        .view-item.active .right-cards > *:nth-child(1) {
-            transition-delay: 0.2s;
-        }
-        
-        .view-item.active .right-cards > *:nth-child(2) {
-            transition-delay: 0.3s;
-        }
-        
-        .view-item.active .right-cards > *:nth-child(3) {
-            transition-delay: 0.4s;
-        }
-        
-        .view-item.active .right-cards > *:nth-child(4) {
-            transition-delay: 0.5s;
-        }
-        
-        .view-item.active .right-cards > * {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        .view-dot {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .view-dot:hover {
-            opacity: 0.8;
-        }
-        
+
+        /* 导航链接样式 */
         .nav-link {
             color: #DADCE0;
-            font-weight: 400;
+            font-weight: 300;
             transition: all 0.3s ease;
             position: relative;
         }
@@ -269,37 +146,913 @@
         .nav-link:hover {
             color: #ffffff;
         }
+        
+        /* ===== NEVERHACK 风格编号系统 ===== */
+        .index-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .index-tag::before,
+        .index-tag::after {
+            content: '/';
+            color: var(--primary);
+            opacity: 0.6;
+        }
+        
+        .index-tag .num {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* 区块标签 */
+        .section-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-tag .dot {
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        
+        .section-tag .line {
+            width: 24px;
+            height: 1px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+        }
+        
+        /* 边框卡片 - NEVERHACK风格 */
+        .nh-card {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid var(--line-color);
+            border-radius: 16px;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .nh-card::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .nh-card::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .nh-card:hover {
+            border-color: var(--line-color-hover);
+        }
+        
+        .nh-card:hover::before,
+        .nh-card:hover::after {
+            background: var(--primary);
+        }
+
+        /* --- 滚动触发动画 --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-80px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(80px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* --- Usecase 原地滚动核心样式 --- */
+        .sticky-wrapper {
+            height: 400vh;
+            position: relative;
+        }
+
+        .sticky-container {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            background: #0a0a0a;
+        }
+        
+        /* Usecase 内部结构线 */
+        .usecase-frame {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .usecase-frame .h-line {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 1px;
+            background: var(--line-color);
+        }
+        
+        .usecase-frame .h-line.top { top: 0; }
+        .usecase-frame .h-line.bottom { bottom: 0; }
+        
+        .usecase-frame .v-line-inner {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, transparent 10%, var(--line-color) 30%, var(--line-color) 70%, transparent 90%);
+        }
+        
+        .usecase-frame .v-line-inner.left { left: 42%; }
+        
+        /* 区块内角落点 */
+        .usecase-frame .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .usecase-frame .dot.tl { top: 0; left: 5%; transform: translate(-50%, -50%); }
+        .usecase-frame .dot.tr { top: 0; right: 5%; transform: translate(50%, -50%); }
+        .usecase-frame .dot.bl { bottom: 0; left: 5%; transform: translate(-50%, 50%); }
+        .usecase-frame .dot.br { bottom: 0; right: 5%; transform: translate(50%, 50%); }
+        
+        .view-item {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        
+        .view-item.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 标题从左侧滑入动画 - 逐行依次出现 */
+        .view-item .text-content .anim-title {
+            font-size: 60px !important;
+            font-weight: 500 !important;
+            line-height: 1.1;
+        }
+        
+        .view-item .text-content .anim-title .line-1,
+        .view-item .text-content .anim-title .line-2 {
+            display: block;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item .text-content .anim-desc {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item.active .text-content .anim-title .line-1 {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.1s;
+        }
+        
+        .view-item.active .text-content .anim-title .line-2 {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.25s;
+        }
+        
+        .view-item.active .text-content .anim-desc {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.4s;
+        }
+        
+        /* 右侧卡片依次出现动画 */
+        .view-item .cards-grid .app-card {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(1) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.25s;
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(2) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.4s;
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(3) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.55s;
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(4) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.7s;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 3fr 4fr;
+            gap: 0;
+            align-items: stretch;
+            width: calc(100% - 240px);
+            max-width: none;
+            margin: 0 120px;
+            height: 100%;
+            position: relative;
+        }
+        
+        .layout-grid::before {
+            content: '';
+            position: absolute;
+            left: calc(3 / 7 * 100%);
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--line-color);
+        }
+
+        .text-content {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: 4rem;
+            height: 100%;
+        }
+
+        /* 右侧卡片网格 - 大尺寸创新布局 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            perspective: 1200px;
+            max-width: 580px;
+            width: 100%;
+            margin: 48px auto;
+            position: relative;
+            box-sizing: border-box;
+            padding: 0 24px;
+        }
+        
+        .app-card {
+            background: rgba(12, 12, 12, 0.95);
+            border: 1px solid var(--line-color);
+            border-radius: 0;
+            padding: 1rem;
+            transition: border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        /* 卡片角落装饰 */
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .app-card:hover {
+            border-color: var(--line-color-hover);
+        }
+        
+        .app-card:hover::before {
+            background: var(--primary);
+        }
+
+        .card-preview {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            border-radius: 0;
+            margin-bottom: 1rem;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            filter: grayscale(100%) brightness(0.4);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
+            border: 1px solid var(--line-color);
+        }
+        
+        .app-card:hover .card-preview {
+            filter: grayscale(100%) brightness(0.5);
+            transform: scale(0.95);
+        }
+        
+        /* 卡片内容区域 */
+        .card-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-content h3 {
+            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        .card-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .card-desc-full {
+            display: none;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.5;
+            margin-top: 6px;
+        }
+        
+        .app-card:hover .card-desc {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Steps 卡片样式 - NEVERHACK风格 */
+        .step-card {
+            background: rgba(12, 12, 12, 0.9);
+            border: 1px solid var(--line-color);
+            border-radius: 0;
+            padding: 2rem;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        
+        /* 角落装饰点 */
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .step-card::after {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .step-card:hover {
+            border-color: var(--line-color-hover);
+        }
+        
+        .step-card:hover::before,
+        .step-card:hover::after {
+            background: var(--primary);
+        }
+
+        .number-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .number-badge::before,
+        .number-badge::after {
+            content: '/';
+            opacity: 0.5;
+        }
+
+        /* Roles 卡片样式 - NEVERHACK风格 */
+        .role-card {
+            background: rgba(12, 12, 12, 0.9);
+            border: 1px solid var(--line-color);
+            border-radius: 0;
+            padding: 1.5rem;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .role-card:hover {
+            border-color: var(--line-color-hover);
+        }
+        
+        .role-card:hover::before {
+            background: var(--primary);
+        }
+        
+        .role-icon {
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: 1px solid var(--line-color);
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: all 0.4s ease;
+        }
+        
+        .role-icon svg {
+            color: var(--primary) !important;
+        }
+        
+        .role-card:hover .role-icon {
+            border-color: var(--primary);
+            background: rgba(0, 191, 75, 0.1);
+        }
+
+        /* 磁性吸附效果 */
+        .magnetic {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 浮动动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .float-animation-delay-1 {
+            animation: float 6s ease-in-out 1s infinite;
+        }
+        
+        .float-animation-delay-2 {
+            animation: float 6s ease-in-out 2s infinite;
+        }
+
+        /* 标题渐变效果 */
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-text-green {
+            background: linear-gradient(135deg, var(--primary) 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 导航点样式 */
+        .side-dots {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .side-dots.visible {
+            opacity: 1;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        
+        .dot.active {
+            background: var(--primary);
+            box-shadow: 0 0 12px var(--primary);
+            transform: scale(1.2);
+        }
+        
+        @media (max-width: 1400px) {
+            .side-dots {
+                right: 20px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .side-dots {
+                right: 16px;
+                padding: 10px 6px;
+                gap: 12px;
+            }
+            .dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+        
+        /* 序号指示器 */
+        .view-counter {
+            position: absolute;
+            left: 4%;
+            bottom: 10%;
+            font-size: 120px;
+            font-weight: 200;
+            color: rgba(255, 255, 255, 0.03);
+            line-height: 1;
+            letter-spacing: -0.05em;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .view-counter span {
+            display: inline-block;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item.active .view-counter span {
+            color: rgba(0, 191, 75, 0.08);
+        }
+
+        /* Section 分隔线 - 带角落点 */
+        .section-divider {
+            position: relative;
+            height: 1px;
+            background: var(--line-color);
+            margin: 0 5%;
+        }
+        
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .section-divider::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        /* 水平装饰线 */
+        .line-h {
+            height: 1px;
+            background: var(--line-color);
+        }
+        
+        /* 垂直装饰线 */
+        .line-v {
+            width: 1px;
+            background: var(--line-color);
+        }
+        
+        /* 带发光的线 */
+        .line-glow {
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+        }
+        
+        /* ===== 高级滚动动画 ===== */
+        
+        /* 文字逐行显现 */
+        .reveal-lines .line {
+            display: block;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-lines.active .line {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-lines.active .line:nth-child(1) { transition-delay: 0s; }
+        .reveal-lines.active .line:nth-child(2) { transition-delay: 0.1s; }
+        .reveal-lines.active .line:nth-child(3) { transition-delay: 0.2s; }
+        .reveal-lines.active .line:nth-child(4) { transition-delay: 0.3s; }
+        
+        /* 交错动画 */
+        .stagger-reveal > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .stagger-reveal.active > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+        .stagger-reveal.active > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.08s; }
+        .stagger-reveal.active > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.16s; }
+        .stagger-reveal.active > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+        .stagger-reveal.active > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.32s; }
+        .stagger-reveal.active > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+        
+        /* 从左侧滑入 */
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .slide-in-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* 缩放淡入 */
+        .zoom-in {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .zoom-in.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* 装饰线进入动画 */
+        .line-grow {
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .line-grow.active {
+            transform: scaleX(1);
+        }
+        
+        .line-grow-center {
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .line-grow-center.active {
+            transform: scaleX(1);
+        }
+        
+        /* Hero 结构框架 */
+        .hero-structure {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .hero-structure .corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .hero-structure .corner::before,
+        .hero-structure .corner::after {
+            content: '';
+            position: absolute;
+            background: var(--line-color);
+        }
+        
+        .hero-structure .corner.tl { top: 5%; left: 5%; }
+        .hero-structure .corner.tl::before { width: 1px; height: 100%; top: 0; left: 0; }
+        .hero-structure .corner.tl::after { width: 100%; height: 1px; top: 0; left: 0; }
+        
+        .hero-structure .corner.tr { top: 5%; right: 5%; }
+        .hero-structure .corner.tr::before { width: 1px; height: 100%; top: 0; right: 0; }
+        .hero-structure .corner.tr::after { width: 100%; height: 1px; top: 0; right: 0; }
+        
+        .hero-structure .corner.bl { bottom: 5%; left: 5%; }
+        .hero-structure .corner.bl::before { width: 1px; height: 100%; bottom: 0; left: 0; }
+        .hero-structure .corner.bl::after { width: 100%; height: 1px; bottom: 0; left: 0; }
+        
+        .hero-structure .corner.br { bottom: 5%; right: 5%; }
+        .hero-structure .corner.br::before { width: 1px; height: 100%; bottom: 0; right: 0; }
+        .hero-structure .corner.br::after { width: 100%; height: 1px; bottom: 0; right: 0; }
+        
+        /* 角落圆点 */
+        .hero-structure .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .hero-structure .dot.tl { top: 5%; left: 5%; transform: translate(-2px, -2px); }
+        .hero-structure .dot.tr { top: 5%; right: 5%; transform: translate(2px, -2px); }
+        .hero-structure .dot.bl { bottom: 5%; left: 5%; transform: translate(-2px, 2px); }
+        .hero-structure .dot.br { bottom: 5%; right: 5%; transform: translate(2px, 2px); }
+        
+        /* 页面加载动画 */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-line {
+            width: 100px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loader-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: var(--primary);
+            animation: loader-progress 1.5s ease forwards;
+        }
+        
+        @keyframes loader-progress {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
     </style>
 </head>
-<body class="gradient-bg text-white min-h-screen">
+<body class="bg-[#0a0a0a] text-white min-h-screen">
+    <!-- 页面加载动画 -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-line"></div>
+    </div>
+
+    <!-- ===== 全局结构线 ===== -->
+    <div class="global-lines">
+        <!-- 垂直线 -->
+        <div class="v-line v-line-1"></div>
+        <div class="v-line v-line-3"></div>
+        <!-- 顶部角落点 -->
+        <div class="corner-dot top-left"></div>
+        <div class="corner-dot top-right"></div>
+    </div>
+
     <!-- Header -->
-    <header class="fixed top-0 left-0 right-0 z-50" style="background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
-        <!-- Navigation Container - 响应式设计 -->
+    <header class="fixed top-0 left-0 right-0 z-50" style="background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+        <!-- 导航底部渐变线 -->
+        <div class="absolute bottom-0 left-0 right-0 h-[1px]" style="background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.15) 80%, transparent 100%);"></div>
         <div class="mx-auto w-full max-w-[1920px] px-4 md:px-10">
-            <!-- Navigation Bar -->
             <nav class="w-full relative" style="height: 72px; display: flex; align-items: center; justify-content: space-between;">
-                <!-- Logo -->
                 <div class="flex items-center flex-shrink-0">
                     <img src="logo.svg" alt="Paraflow" style="height: 26px; width: auto;">
                 </div>
-                
-                <!-- Navigation Links - 居中 -->
                 <div class="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
-                    <a href="#" class="nav-link text-sm flex items-center gap-1 whitespace-nowrap">
+                    <a href="#" class="nav-link text-sm flex items-center gap-1">
                         Product
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: inherit;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </a>
-                    <a href="#" class="nav-link text-sm whitespace-nowrap">Use Cases</a>
-                    <a href="#" class="nav-link text-sm whitespace-nowrap">Learn</a>
-                    <a href="#" class="nav-link text-sm whitespace-nowrap">Pricing</a>
+                    <a href="#" class="nav-link text-sm">Use Cases</a>
+                    <a href="#" class="nav-link text-sm">Learn</a>
+                    <a href="#" class="nav-link text-sm">Pricing</a>
                 </div>
-                
-                <!-- Right Actions -->
-                <div class="flex items-center gap-4 flex-shrink-0">
-                    <a href="#" class="nav-link text-sm font-medium whitespace-nowrap">Log in</a>
-                    <button class="px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90 whitespace-nowrap" style="background: #00BF4B; color: #ffffff;">
+                <div class="flex items-center gap-4">
+                    <a href="#" class="nav-link text-sm font-medium">Log in</a>
+                    <button class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style="background: #00BF4B; color: #ffffff;">
                         Get started
                     </button>
                 </div>
@@ -308,281 +1061,299 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="relative px-6 overflow-hidden bg-black" style="padding-top: 80px; padding-bottom: 80px; display: flex; align-items: center; min-height: 600px;">
-        <div class="max-w-7xl mx-auto w-full relative z-10">
-            <!-- Main Title -->
-            <h1 class="text-6xl md:text-7xl lg:text-8xl font-bold text-center mb-8 leading-tight tracking-tight text-white" style="white-space: nowrap;">
-                The Visual <span class="coding-text" id="codingText">Coding</span> Agent
+    <section class="relative min-h-screen flex items-center justify-center px-6" style="z-index: 2;" id="heroSection">
+        
+        <div class="max-w-7xl mx-auto text-center relative">
+            <h1 class="mb-8 tracking-tight reveal whitespace-nowrap" style="font-size: 72px; line-height: 1.1;">
+                The Visual <span class="coding-text">Coding</span> Agent
             </h1>
             
-            <!-- Subtitle -->
-            <p class="text-xl md:text-2xl text-gray-400 text-center mb-12 max-w-3xl mx-auto leading-relaxed" style="font-weight: 400;">
+            <p class="text-gray-400 mb-12 max-w-3xl mx-auto font-light reveal" style="font-size: 24px; transition-delay: 0.2s;">
                 Vibe coding tools make apps. The Visual Coding Agent builds real apps.
             </p>
             
-            <!-- CTA Buttons -->
-            <div class="flex items-center justify-center gap-4 flex-wrap">
-                <button class="glow-button px-8 py-4 font-semibold text-lg">
-                    Start building now
-                </button>
-                <button class="bg-black border border-gray-700 px-8 py-4 rounded-xl font-semibold text-white text-lg flex items-center gap-2 hover:bg-gray-900 transition">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                    </svg>
+            <div class="flex justify-center gap-4 stagger-reveal">
+                <button class="glow-button text-lg" style="padding: 16px 48px; font-size: 18px;">Start building now</button>
+                <button class="bg-transparent border border-white/10 rounded-xl font-medium flex items-center gap-3 hover:bg-white/5 hover:border-white/20 transition-all duration-300" style="padding: 16px 48px; font-size: 18px;">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
                     Watch a video
                 </button>
             </div>
         </div>
     </section>
     
-    <script>
-        // Coding 文字字体循环切换动画
-    </script>
-
-    <!-- Fullscreen View Switcher Section -->
-    <section class="fullscreen-container bg-black" style="position: relative; width: 100vw; height: 100vh; overflow: hidden;">
-        <!-- View Container -->
-        <div class="view-container w-full h-full relative">
-            <!-- View 1: Build complete apps -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <!-- Left Content -->
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            Build <span style="color: #00BF4B;">complete apps,</span><br>
-                            front to back.
+    <!-- Usecase Section -->
+    <section class="sticky-wrapper" id="stickySection">
+        <!-- 导航点 -->
+        <div class="side-dots" id="sideDots">
+            <div class="dot active" data-index="0"></div>
+            <div class="dot" data-index="1"></div>
+            <div class="dot" data-index="2"></div>
+            <div class="dot" data-index="3"></div>
+        </div>
+        
+        <div class="sticky-container">
+            <!-- Usecase 内部结构线 -->
+            <div class="usecase-frame">
+                <div class="h-line top"></div>
+                <div class="dot tl"></div>
+                <div class="dot tr"></div>
+            </div>
+            <!-- Content 1 -->
+            <div class="view-item active">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <!-- 索引标签 -->
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_001</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">Build <span class="gradient-text-green">complete apps,</span></span>
+                            <span class="line-2">front to back.</span>
                         </h2>
-                        <p class="text-xl text-gray-400 leading-relaxed">
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
                             Design UI, define logic, and work with real data in one canvas. No handoffs. No glue code. Just shippable software.
                         </p>
                     </div>
-                    
-                    <!-- Right Cards -->
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <!-- App Card 1 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #1a5c2e 0%, #0d2d17 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Interactive Portfolio</h3>
+                                <p class="card-desc">Full-stack portfolio with real-time updates and seamless authentication.</p>
+                                <p class="card-desc-full">Showcase your work with dynamic galleries, contact forms, and analytics dashboard.</p>
                         </div>
-                        
-                        <!-- App Card 2 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
                         </div>
-                        
-                        <!-- App Card 3 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #2d4a5c 0%, #1a2d3d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Sales Lead Tracker</h3>
+                                <p class="card-desc">Manage your sales pipeline with visual kanban boards and insights.</p>
+                                <p class="card-desc-full">Track deals, automate follow-ups, and generate revenue reports instantly.</p>
                         </div>
-                        
-                        <!-- App Card 4 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #5c4a2d 0%, #3d2d1a 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Customer Feedback</h3>
+                                <p class="card-desc">Gather user insights with customizable surveys and NPS tracking.</p>
+                                <p class="card-desc-full">Analyze sentiment, identify trends, and improve customer satisfaction.</p>
+                    </div>
+                </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #4a2d5c 0%, #2d1a3d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Restaurant System</h3>
+                                <p class="card-desc">Dual-interface system for customers and kitchen management.</p>
+                                <p class="card-desc-full">Handle orders, reservations, inventory, and staff scheduling in one place.</p>
+            </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+<!-- Content 2 -->
+            <div class="view-item">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_002</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">High-quality UI by default.</span>
+                            <span class="line-2"><span class="gradient-text-green">Customizable when it matters.</span></span>
+                        </h2>
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Define a shared design system, then refine it together. Designers can step in to fine-tune every detail.
+                        </p>
+                    </div>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #2d5c4a 0%, #1a3d2d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Design System</h3>
+                                <p class="card-desc">Create unified visual language with tokens, themes, and variants.</p>
+                                <p class="card-desc-full">Maintain consistency across all your products and teams.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #5c2d4a 0%, #3d1a2d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">UI Components</h3>
+                                <p class="card-desc">Pre-built components that adapt to your brand automatically.</p>
+                                <p class="card-desc-full">Buttons, forms, modals, and more—all production-ready.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #4a5c2d 0%, #2d3d1a 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Grid Layouts</h3>
+                                <p class="card-desc">Responsive layouts that work on every screen size.</p>
+                                <p class="card-desc-full">From mobile to desktop, your UI adapts seamlessly.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #2d4a5c 0%, #1a2d3d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Refinement</h3>
+                                <p class="card-desc">Fine-tune every detail without breaking consistency.</p>
+                                <p class="card-desc-full">Perfect pixels, precise spacing, flawless typography.</p>
+                        </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- View 2: High-quality UI -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            High-quality UI by<br>
-                            <span style="color: #00BF4B;">default.</span>
+            <!-- Content 3 -->
+            <div class="view-item">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_003</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">From realistic mockups</span>
+                            <span class="line-2"><span class="gradient-text-green">to real AI apps.</span></span>
                         </h2>
-                        <h3 class="text-5xl md:text-6xl font-bold mb-4 leading-tight" style="color: #00BF4B;">
-                            Customizable when it matters.
-                        </h3>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Define a shared design system, then refine it together. Designers can step in to fine-tune every detail—without ever breaking consistency.
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Easily connect data, models, and services with flexible APIs and built-in integrations.
                         </p>
                     </div>
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #5c4a2d 0%, #3d2d1a 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">API Integration</h3>
+                                <p class="card-desc">Connect to any REST or GraphQL API with zero configuration.</p>
+                                <p class="card-desc-full">Authentication, rate limiting, and error handling built-in.</p>
                         </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
                         </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #2d5c5c 0%, #1a3d3d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">AI Models</h3>
+                                <p class="card-desc">Integrate GPT, Claude, and custom models seamlessly.</p>
+                                <p class="card-desc-full">Build AI-powered features without ML expertise.</p>
                         </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
                         </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #5c2d2d 0%, #3d1a1a 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Data Sync</h3>
+                                <p class="card-desc">Real-time synchronization across all your data sources.</p>
+                                <p class="card-desc-full">Keep everything in sync with automatic conflict resolution.</p>
+                    </div>
+                </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #3d5c2d 0%, #2d3d1a 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Live Service</h3>
+                                <p class="card-desc">Deploy instantly with global edge distribution.</p>
+                                <p class="card-desc-full">Zero-downtime deployments with automatic rollbacks.</p>
+            </div>
+                    </div>
                     </div>
                 </div>
             </div>
             
-            <!-- View 3: From realistic mockups -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            From realistic mockups<br>
-                            <span style="color: #00BF4B;">to real AI apps.</span>
+            <!-- Content 4 -->
+            <div class="view-item">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_004</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">Enable anyone to build</span>
+                            <span class="line-2"><span class="gradient-text-green">the tools they need.</span></span>
                         </h2>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Easily connect data, models, and services with flexible APIs and built-in integrations—for real products or realistic mockups.
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Empower every team member to create lightweight, customizable tools that fit how they actually work.
                         </p>
                     </div>
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #4a2d5c 0%, #2d1a3d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Internal Tools</h3>
+                                <p class="card-desc">Build admin panels, dashboards, and workflows in minutes.</p>
+                                <p class="card-desc-full">No engineering queue—teams build what they need.</p>
                         </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
                         </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #2d3d5c 0%, #1a2d3d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Custom Flow</h3>
+                                <p class="card-desc">Visual workflow builder for any business process.</p>
+                                <p class="card-desc-full">Automate approvals, notifications, and data pipelines.</p>
                         </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
                         </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #5c3d2d 0%, #3d2d1a 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Team Collaboration</h3>
+                                <p class="card-desc">Real-time multiplayer editing and commenting.</p>
+                                <p class="card-desc-full">Version control and permissions for enterprise teams.</p>
                     </div>
                 </div>
-            </div>
-            
-            <!-- View 4: Enable anyone to build -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            Enable anyone to<br>
-                            <span style="color: #00BF4B;">build the tools they need.</span>
-                        </h2>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Empower every team member to create lightweight, customizable tools that fit how they actually work—without waiting on engineering.
-                        </p>
-                    </div>
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-24 mb-3"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
-                        </div>
-                    </div>
-                </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: linear-gradient(135deg, #2d5c3d 0%, #1a3d2d 100%);"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Self Service</h3>
+                                <p class="card-desc">Empower non-technical users to build their own tools.</p>
+                                <p class="card-desc-full">Guardrails ensure security and best practices.</p>
             </div>
         </div>
-        
-        <!-- Navigation Dots - 左侧 -->
-        <div class="absolute left-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-3 z-10">
-            <button class="view-dot w-2 h-2 rounded-full bg-white transition-all" data-view="0"></button>
-            <button class="view-dot w-2 h-2 rounded-full bg-gray-600 transition-all" data-view="1"></button>
-            <button class="view-dot w-2 h-2 rounded-full bg-gray-600 transition-all" data-view="2"></button>
-            <button class="view-dot w-2 h-2 rounded-full bg-gray-600 transition-all" data-view="3"></button>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
     
-    <script>
-        // 视图动画初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            const viewItems = document.querySelectorAll('.view-item');
-            const viewDots = document.querySelectorAll('.view-dot');
-            
-            // 更新导航点
-            function updateNavigationDots(index) {
-                viewDots.forEach((dot, i) => {
-                    if (i === index) {
-                        dot.classList.remove('bg-gray-600');
-                        dot.classList.add('bg-white', 'w-8');
-                    } else {
-                        dot.classList.remove('bg-white', 'w-8');
-                        dot.classList.add('bg-gray-600', 'w-2');
-                    }
-                });
-            }
-            
-            // 初始化第一个视图
-            if (viewItems.length > 0) {
-                viewItems[0].classList.add('active');
-                updateNavigationDots(0);
-            }
-            
-            // 导航点点击 - 平滑滚动到对应视图
-            viewDots.forEach((dot, index) => {
-                dot.addEventListener('click', () => {
-                    if (viewItems[index]) {
-                        viewItems[index].scrollIntoView({ 
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-        });
-    </script>
+    <div class="section-divider"></div>
 
-    <!-- Define, Design, Develop Section -->
-    <section class="px-6 bg-black/40" style="padding-top: 128px; padding-bottom: 128px;">
+    <!-- Steps Section -->
+    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="stepsSection">
+        <!-- 顶部水平线 -->
+        <div class="section-line top" style="position: absolute;"></div>
+        
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl md:text-6xl font-bold mb-6 text-center">
-                Define, design and develop on an infinite canvas.
+            <!-- Section 标签 -->
+            <div class="section-tag mb-8 justify-center reveal">
+                <span class="dot"></span>
+                <span>HOW IT WORKS</span>
+                <span class="line"></span>
+            </div>
+            
+            <h2 class="text-5xl md:text-6xl mb-6 text-center reveal-lines">
+                <span class="line"><span class="gradient-text">Define, design and develop</span></span>
+                <span class="line"><span class="text-white">on an infinite canvas.</span></span>
             </h2>
             
-            <p class="text-xl text-gray-400 text-center mb-16 max-w-3xl mx-auto">
+            <p class="text-lg text-gray-500 text-center mb-20 max-w-3xl mx-auto font-light reveal" style="transition-delay: 0.2s;">
                 Organize your ideas in order, design beautifully, and turn them into production apps.
             </p>
             
-            <div class="grid md:grid-cols-3 gap-8">
+            <div class="grid md:grid-cols-3 gap-0 stagger-reveal" style="border: 1px solid var(--line-color);">
                 <!-- Step 01 -->
-                <div class="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 card-hover">
-                    <div class="flex items-start gap-6">
+                <div class="step-card reveal-scale" style="transition-delay: 0.1s; border-right: 1px solid var(--line-color);">
+                    <div class="space-y-4">
                         <div class="number-badge">01</div>
-                        <div class="flex-1">
-                            <h3 class="text-2xl font-bold mb-3">Define with Logic</h3>
-                            <p class="text-gray-400 leading-relaxed">
+                        <h3 class="text-xl mb-2">Define with Logic</h3>
+                        <p class="text-gray-500 leading-relaxed font-light text-sm">
                                 Think & Plan. Create PRDs and User Flows that act as the logical backbone.
                             </p>
-                            <div class="mt-4 bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
+                        <div class="mt-6 bg-black/60 p-6 h-32 flex items-center justify-center border border-white/5">
                                 <div class="text-center">
-                                    <div class="text-green-400 font-bold mb-2">PRD</div>
-                                    <div class="flex gap-2 justify-center">
-                                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
-                                        <div class="w-2 h-2 bg-teal-400 rounded-full"></div>
-                                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-2">Flowcharts</div>
+                                <div class="text-green-400 text-sm mb-3 font-mono">PRD</div>
+                                <div class="flex gap-3 justify-center">
+                                    <div class="w-1.5 h-1.5 bg-green-400/60 rounded-full animate-pulse"></div>
+                                    <div class="w-1.5 h-1.5 bg-green-400/40 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+                                    <div class="w-1.5 h-1.5 bg-green-400/60 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
                                 </div>
                             </div>
                         </div>
@@ -590,226 +1361,318 @@
                 </div>
                 
                 <!-- Step 02 -->
-                <div class="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 card-hover">
-                    <div class="flex items-start gap-6">
+                <div class="step-card reveal-scale" style="transition-delay: 0.2s; border-right: 1px solid var(--line-color);">
+                    <div class="space-y-4">
                         <div class="number-badge">02</div>
-                        <div class="flex-1">
-                            <h3 class="text-2xl font-bold mb-3">Design like a Pro</h3>
-                            <p class="text-gray-400 leading-relaxed">
-                                Generate system high-taste UIs with an editable design that ensures consistency.
-                            </p>
-                            <div class="mt-4 bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
-                                <div class="w-full">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="w-16 h-3 bg-gray-700 rounded"></div>
-                                        <div class="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                                            <span class="text-gray-500 text-xs">×</span>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="h-2 bg-green-400/30 rounded"></div>
-                                        <div class="h-2 bg-teal-400/30 rounded w-3/4"></div>
-                                    </div>
-                                </div>
+                        <h3 class="text-xl mb-2">Design like a Pro</h3>
+                        <p class="text-gray-500 leading-relaxed font-light text-sm">
+                            Generate high-taste UIs with an editable design that ensures consistency.
+                        </p>
+                        <div class="mt-6 bg-black/60 p-6 h-32 flex items-center justify-center border border-white/5">
+                            <div class="w-full space-y-2">
+                                <div class="h-2 bg-gradient-to-r from-green-400/30 to-transparent"></div>
+                                <div class="h-2 bg-gradient-to-r from-green-400/20 to-transparent w-3/4"></div>
+                                <div class="h-2 bg-gradient-to-r from-green-400/30 to-transparent w-1/2"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Step 03 -->
-                <div class="bg-gray-900/50 rounded-2xl p-8 border border-gray-800 card-hover">
-                    <div class="flex items-start gap-6">
+                <div class="step-card reveal-scale" style="transition-delay: 0.3s;">
+                    <div class="space-y-4">
                         <div class="number-badge">03</div>
-                        <div class="flex-1">
-                            <h3 class="text-2xl font-bold mb-3">Develop to Real</h3>
-                            <p class="text-gray-400 leading-relaxed">
-                                With production-ready app instantly, databases and APIs, and your code ready to deploy.
-                            </p>
-                            <div class="mt-4 bg-gray-800 rounded-lg p-4 h-32 flex items-center justify-center">
-                                <div class="w-full">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="w-16 h-3 bg-gray-700 rounded"></div>
-                                        <div class="w-6 h-6 bg-gray-700 rounded flex items-center justify-center">
-                                            <span class="text-gray-500 text-xs">×</span>
+                        <h3 class="text-xl mb-2">Develop to Real</h3>
+                        <p class="text-gray-500 leading-relaxed font-light text-sm">
+                            Production-ready app instantly, databases and APIs ready to deploy.
+                        </p>
+                        <div class="mt-6 bg-black/60 p-6 h-32 flex items-center justify-center border border-white/5">
+                            <div class="font-mono text-xs text-green-400/60">
+                                <div>&lt;App /&gt;</div>
+                                <div class="ml-4 text-green-400/40">├── API</div>
+                                <div class="ml-4 text-green-400/40">├── DB</div>
+                                <div class="ml-4 text-green-400/40">└── Deploy ✓</div>
                                         </div>
                                     </div>
-                                    <div class="space-y-2">
-                                        <div class="h-2 bg-green-400/30 rounded"></div>
-                                        <div class="h-2 bg-teal-400/30 rounded w-3/4"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        
+        <!-- 底部水平线 -->
+        <div class="section-line bottom" style="position: absolute;"></div>
     </section>
 
-    <!-- Built for Every Role Section -->
-    <section class="px-6" style="padding-top: 128px; padding-bottom: 128px;">
+    <div class="section-divider"></div>
+
+    <!-- Roles Section -->
+    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="rolesSection">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-5xl md:text-6xl font-bold mb-16 text-center">
-                Built for every role
+            <!-- Section 标签 -->
+            <div class="section-tag mb-8 justify-center reveal">
+                <span class="dot"></span>
+                <span>FOR TEAMS</span>
+                <span class="line"></span>
+            </div>
+            
+            <h2 class="text-5xl md:text-6xl mb-16 text-center reveal-lines">
+                <span class="line">Built for <span class="gradient-text-green">every role</span></span>
             </h2>
             
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 6个卡片网格 - 带边框分隔 -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-0 stagger-reveal" style="border: 1px solid var(--line-color);">
                 <!-- Startup -->
-                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
-                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                <div class="role-card" style="border-right: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);">
+                    <div class="role-icon">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Startup</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Ship your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously on one canvas.
+                    <h3 class="text-lg mb-2">Startup</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed font-light">
+                        Ship your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously.
                     </p>
                 </div>
                 
-                <!-- Design & Develop Studio -->
-                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
-                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Design Studio -->
+                <div class="role-card" style="border-right: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);">
+                    <div class="role-icon">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Design & Develop Studio</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Deliver high-fidelity production apps to clients faster. Maintain distinct design systems for every client project.
+                    <h3 class="text-lg mb-2">Design & Develop Studio</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed font-light">
+                        Deliver high-fidelity production apps to clients faster with distinct design systems.
                     </p>
                 </div>
                 
                 <!-- PM -->
-                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
-                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                <div class="role-card" style="border-bottom: 1px solid var(--line-color);">
+                    <div class="role-icon">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">PM (Product Manager)</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Turn PRDs into live, testable apps. Verify user flows and business logic without waiting for engineering cycles.
+                    <h3 class="text-lg mb-2">PM (Product Manager)</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed font-light">
+                        Turn PRDs into live, testable apps. Verify user flows without waiting for engineering.
                     </p>
                 </div>
                 
                 <!-- Product Designer -->
-                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
-                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 001 1h3a1 1 0 100-2h-3a1 1 0 00-1 1zm-9.75 0a.75.75 0 000 1.5A9.128 9.128 0 007.7 12.545a.75.75 0 001.134-.955A7.623 7.623 0 013.25 8z" clip-rule="evenodd"/>
+                <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                    <div class="role-icon">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Product Designer</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Design with real functional components. Ensure your vision is pixel-perfect in production, exactly as you designed it.
+                    <h3 class="text-lg mb-2">Product Designer</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed font-light">
+                        Design with real functional components. Ensure pixel-perfect production.
                     </p>
                 </div>
                 
                 <!-- Engineer -->
-                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
-                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                    <div class="role-icon">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Engineer</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Skip the boilerplate setup. Get clean, modular code generated by the agent and focus on complex backend logic.
+                    <h3 class="text-lg mb-2">Engineer</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed font-light">
+                        Skip the boilerplate. Get clean, modular code and focus on complex backend logic.
                     </p>
                 </div>
                 
-                <!-- Marketing & Operation -->
-                <div class="bg-gray-900/50 rounded-xl p-6 border border-gray-800 card-hover">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-400 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-green-500/20">
-                        <svg class="w-6 h-6 text-black" fill="currentColor" viewBox="0 0 20 20">
+                <!-- Marketing -->
+                <div class="role-card">
+                    <div class="role-icon">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">Marketing & Operation</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Launch campaign tools and landing pages without blocking engineering. Own your marketing stack from design to data.
+                    <h3 class="text-lg mb-2">Marketing & Operation</h3>
+                    <p class="text-gray-500 text-sm leading-relaxed font-light">
+                        Launch campaign tools and landing pages without blocking engineering.
                     </p>
                 </div>
             </div>
         </div>
+        
+        <!-- 底部水平线 -->
+        <div class="section-line bottom" style="position: absolute;"></div>
     </section>
 
-    <!-- Final CTA Section -->
-    <section class="px-6 bg-black/40" style="padding-top: 128px; padding-bottom: 128px;">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-5xl md:text-6xl font-bold mb-10">
-                Start creating with The Visual Coding Agent.
+    <!-- CTA Section -->
+    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="ctaSection">
+        <!-- 结构框 -->
+        <div class="absolute inset-[5%] border border-white/5 pointer-events-none">
+            <div class="absolute top-0 left-0 w-3 h-3 border-l border-t border-white/20"></div>
+            <div class="absolute top-0 right-0 w-3 h-3 border-r border-t border-white/20"></div>
+            <div class="absolute bottom-0 left-0 w-3 h-3 border-l border-b border-white/20"></div>
+            <div class="absolute bottom-0 right-0 w-3 h-3 border-r border-b border-white/20"></div>
+        </div>
+        
+        <div class="max-w-4xl mx-auto text-center relative">
+            <!-- Section 标签 -->
+            <div class="section-tag mb-8 justify-center reveal">
+                <span class="dot"></span>
+                <span>GET STARTED</span>
+                <span class="line"></span>
+            </div>
+            
+            <h2 class="text-5xl md:text-7xl mb-12 reveal">
+                Start creating with<br>
+                <span class="gradient-text-green">The Visual Coding Agent.</span>
             </h2>
-            <button class="glow-button px-10 py-5 font-semibold text-black text-xl">
+            <div class="reveal" style="transition-delay: 0.1s;">
+                <button class="glow-button px-12 py-5 text-lg">
                 Start building now
             </button>
+            </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="border-t border-gray-800 py-12 px-6">
+    <footer class="relative" style="padding: 80px 5%; z-index: 2; border-top: 1px solid var(--line-color);">
+        <!-- 顶部角落点 -->
+        <div class="absolute top-0 left-[5%] w-1 h-1 bg-white/20 rounded-full transform -translate-y-1/2"></div>
+        <div class="absolute top-0 right-[5%] w-1 h-1 bg-white/20 rounded-full transform -translate-y-1/2"></div>
+        
         <div class="max-w-7xl mx-auto">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
                 <div>
-                    <div class="text-2xl font-bold mb-3">@Paraflow</div>
-                    <p class="text-gray-400 text-sm">
+                    <div class="text-xl mb-4 font-medium">@Paraflow</div>
+                    <p class="text-gray-600 text-sm font-light leading-relaxed">
                         The infinite canvas for building real software. From idea to production in one flow.
                     </p>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4 text-gray-300">PRODUCT</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">Define</a></li>
-                        <li><a href="#" class="hover:text-white transition">Design</a></li>
-                        <li><a href="#" class="hover:text-white transition">Develop</a></li>
-                        <li><a href="#" class="hover:text-white transition">What's New</a></li>
+                    <h4 class="font-semibold mb-5 text-gray-400 text-xs tracking-wider">PRODUCT</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Define</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Design</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Develop</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">What's New</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4 text-gray-300">RESOURCES</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
-                        <li><a href="#" class="hover:text-white transition">Tutorials</a></li>
-                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                    <h4 class="font-semibold mb-5 text-gray-400 text-xs tracking-wider">RESOURCES</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4 text-gray-300">LEGAL</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">Privacy</a></li>
-                        <li><a href="#" class="hover:text-white transition">Terms</a></li>
+                    <h4 class="font-semibold mb-5 text-gray-400 text-xs tracking-wider">LEGAL</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms</a></li>
                     </ul>
                 </div>
             </div>
             
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
-                <div class="text-sm text-gray-400 mb-4 md:mb-0">
-                    © 2026 PARAFLOW INC. <a href="#" class="hover:text-white transition">Privacy policy</a> <a href="#" class="hover:text-white transition">Terms of service</a>
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between">
+                <div class="text-sm text-gray-600 mb-4 md:mb-0">
+                    © 2026 PARAFLOW INC.
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
-                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
-                        </svg>
-                    </a>
-                    <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <div class="flex items-center gap-3">
+                    <a href="#" class="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"/>
                         </svg>
                     </a>
-                    <a href="#" class="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                    <a href="#" class="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"/>
                         </svg>
                     </a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // ===== 页面加载动画 =====
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('pageLoader').classList.add('hidden');
+                document.body.classList.add('loaded');
+                
+                // 触发首屏动画
+                document.querySelectorAll('#heroSection .reveal, #heroSection .reveal-lines, #heroSection .stagger-reveal, #heroSection .section-tag').forEach(el => {
+                    el.classList.add('active');
+                });
+            }, 1500);
+        });
+
+        // ===== 滚动触发动画 =====
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-lines, .stagger-reveal, .slide-in-left, .zoom-in, .line-grow, .line-grow-center, .section-tag');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('active');
+                    }, 50);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -80px 0px'
+        });
+        
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ===== Usecase 原地滚动 =====
+        const wrapper = document.getElementById('stickySection');
+        const items = document.querySelectorAll('.view-item');
+        const sideDots = document.getElementById('sideDots');
+        const navDots = sideDots.querySelectorAll('.dot');
+
+        window.addEventListener('scroll', () => {
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const wrapperTop = wrapper.offsetTop;
+            const scrollPos = window.pageYOffset - wrapperTop;
+            const viewHeight = window.innerHeight;
+            
+            // 显示/隐藏导航点
+            if (wrapperRect.top <= 0 && wrapperRect.bottom >= viewHeight) {
+                sideDots.classList.add('visible');
+            } else {
+                sideDots.classList.remove('visible');
+            }
+            
+            let progress = scrollPos / (wrapper.offsetHeight - viewHeight);
+            progress = Math.max(0, Math.min(1, progress));
+            
+            const index = Math.min(3, Math.floor(progress * 4));
+            
+            items.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('active');
+                    navDots[i].classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                    navDots[i].classList.remove('active');
+                }
+            });
+        });
+        
+        // 点击导航点跳转
+        navDots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                const wrapperTop = wrapper.offsetTop;
+                const targetScroll = wrapperTop + (i * window.innerHeight);
+                window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            });
+        });
+    </script>
 </body>
 </html>
