@@ -161,13 +161,8 @@
         .fullscreen-container {
             position: relative;
             width: 100vw;
-            height: 100vh;
+            min-height: 100vh;
             overflow: hidden;
-        }
-        
-        .view-item {
-            padding-top: 128px;
-            padding-bottom: 128px;
         }
         
         .view-container {
@@ -178,14 +173,77 @@
         
         .view-item {
             width: 100%;
-            padding-top: 128px;
-            padding-bottom: 128px;
+            padding: 80px 120px;
             transition: transform 0.6s ease-in-out;
         }
         
         .view-item.active {
             opacity: 1 !important;
             pointer-events: auto !important;
+        }
+        
+        /* 3:4 布局与中间分割线 */
+        .layout-with-divider {
+            display: grid;
+            grid-template-columns: 3fr 4fr;
+            gap: 0;
+            position: relative;
+            min-height: 500px;
+        }
+        
+        .layout-with-divider::before {
+            content: '';
+            position: absolute;
+            left: calc(3 / 7 * 100%);
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .left-content-area {
+            padding-right: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .right-cards-area {
+            padding-left: 60px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            max-width: 580px;
+            margin: 0 auto;
+        }
+        
+        .usecase-card {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .usecase-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .usecase-card .card-image {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: rgba(40, 40, 40, 0.8);
+            margin-bottom: 12px;
+            filter: grayscale(100%) brightness(0.5);
+            transition: all 0.4s ease;
+        }
+        
+        .usecase-card:hover .card-image {
+            transform: scale(0.95);
         }
         
         /* 文字动画 */
@@ -334,161 +392,167 @@
         <!-- View Container -->
         <div class="view-container w-full h-full relative">
             <!-- View 1: Build complete apps -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+            <div class="view-item active">
+                <div class="layout-with-divider">
                     <!-- Left Content -->
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            Build <span style="color: #00BF4B;">complete apps,</span><br>
-                            front to back.
-                        </h2>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Design UI, define logic, and work with real data in one canvas. No handoffs. No glue code. Just shippable software.
-                        </p>
+                    <div class="left-content-area">
+                        <div class="left-content space-y-6">
+                            <h2 class="text-5xl md:text-6xl mb-4 leading-tight" style="font-weight: 500;">
+                                Build <span style="color: #00BF4B;">complete apps,</span><br>
+                                front to back.
+                            </h2>
+                            <p class="text-xl text-gray-400 leading-relaxed">
+                                Design UI, define logic, and work with real data in one canvas. No handoffs. No glue code. Just shippable software.
+                            </p>
+                        </div>
                     </div>
                     
                     <!-- Right Cards -->
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <!-- App Card 1 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
-                        </div>
-                        
-                        <!-- App Card 2 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
-                        </div>
-                        
-                        <!-- App Card 3 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
-                        </div>
-                        
-                        <!-- App Card 4 -->
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                    <div class="right-cards-area">
+                        <div class="cards-grid">
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Interactive Portfolio</h3>
+                                <p class="text-sm text-gray-400">Full-stack application with user authentication and admin dashboards.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Sales Lead Tracker</h3>
+                                <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Feedback System</h3>
+                                <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Order System</h3>
+                                <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- View 2: High-quality UI -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            High-quality UI by<br>
-                            <span style="color: #00BF4B;">default.</span>
-                        </h2>
-                        <h3 class="text-5xl md:text-6xl font-bold mb-4 leading-tight" style="color: #00BF4B;">
-                            Customizable when it matters.
-                        </h3>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Define a shared design system, then refine it together. Designers can step in to fine-tune every detail—without ever breaking consistency.
-                        </p>
+            <div class="view-item">
+                <div class="layout-with-divider">
+                    <div class="left-content-area">
+                        <div class="left-content space-y-6">
+                            <h2 class="text-5xl md:text-6xl mb-4 leading-tight" style="font-weight: 500;">
+                                High-quality UI by<br>
+                                <span style="color: #00BF4B;">default.</span>
+                            </h2>
+                            <p class="text-xl text-gray-400 leading-relaxed">
+                                Define a shared design system, then refine it together. Designers can step in to fine-tune every detail.
+                            </p>
+                        </div>
                     </div>
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                    <div class="right-cards-area">
+                        <div class="cards-grid">
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Design System</h3>
+                                <p class="text-sm text-gray-400">Consistent components across your entire application.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Theme Editor</h3>
+                                <p class="text-sm text-gray-400">Customize colors, typography, and spacing visually.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Responsive Preview</h3>
+                                <p class="text-sm text-gray-400">See how your design looks on every device.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Animation Studio</h3>
+                                <p class="text-sm text-gray-400">Add micro-interactions and transitions easily.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- View 3: From realistic mockups -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            From realistic mockups<br>
-                            <span style="color: #00BF4B;">to real AI apps.</span>
-                        </h2>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Easily connect data, models, and services with flexible APIs and built-in integrations—for real products or realistic mockups.
-                        </p>
+            <div class="view-item">
+                <div class="layout-with-divider">
+                    <div class="left-content-area">
+                        <div class="left-content space-y-6">
+                            <h2 class="text-5xl md:text-6xl mb-4 leading-tight" style="font-weight: 500;">
+                                From realistic mockups<br>
+                                <span style="color: #00BF4B;">to real AI apps.</span>
+                            </h2>
+                            <p class="text-xl text-gray-400 leading-relaxed">
+                                Easily connect data, models, and services with flexible APIs and built-in integrations.
+                            </p>
+                        </div>
                     </div>
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                    <div class="right-cards-area">
+                        <div class="cards-grid">
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">API Connector</h3>
+                                <p class="text-sm text-gray-400">Connect to any REST or GraphQL endpoint.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">AI Integration</h3>
+                                <p class="text-sm text-gray-400">Built-in support for OpenAI, Claude, and more.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Database Studio</h3>
+                                <p class="text-sm text-gray-400">Visual database design and management.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Real-time Sync</h3>
+                                <p class="text-sm text-gray-400">Live data synchronization across clients.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- View 4: Enable anyone to build -->
-            <div class="view-item w-full h-full flex items-center px-8 md:px-16" style="height: fit-content;">
-                <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
-                    <div class="left-content space-y-6">
-                        <h2 class="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-                            Enable anyone to<br>
-                            <span style="color: #00BF4B;">build the tools they need.</span>
-                        </h2>
-                        <p class="text-xl text-gray-400 leading-relaxed">
-                            Empower every team member to create lightweight, customizable tools that fit how they actually work—without waiting on engineering.
-                        </p>
+            <div class="view-item">
+                <div class="layout-with-divider">
+                    <div class="left-content-area">
+                        <div class="left-content space-y-6">
+                            <h2 class="text-5xl md:text-6xl mb-4 leading-tight" style="font-weight: 500;">
+                                Enable anyone to<br>
+                                <span style="color: #00BF4B;">build the tools they need.</span>
+                            </h2>
+                            <p class="text-xl text-gray-400 leading-relaxed">
+                                Empower every team member to create lightweight, customizable tools—without waiting on engineering.
+                            </p>
+                        </div>
                     </div>
-                    <div class="right-cards grid grid-cols-2 gap-4">
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Interactive Personal Portfolio</h3>
-                            <p class="text-sm text-gray-400">Full-stack application with user authentication, custom roles, and advanced admin dashboards.</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Sales Lead Tracker & CRM</h3>
-                            <p class="text-sm text-gray-400">Manage your sales pipeline with automated lead scoring and interactive...</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Customer Feedback System</h3>
-                            <p class="text-sm text-gray-400">Gather user insights with automated sentiment analysis and visual</p>
-                        </div>
-                        <div class="bg-gray-900 rounded-xl p-5 border border-gray-800">
-                            <div class="bg-gray-800 rounded-lg h-40 mb-4"></div>
-                            <h3 class="font-semibold text-white mb-2">Restaurant Order System</h3>
-                            <p class="text-sm text-gray-400">Dual-interface system for customers and kitchen staff with real-time...</p>
+                    <div class="right-cards-area">
+                        <div class="cards-grid">
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">No-Code Builder</h3>
+                                <p class="text-sm text-gray-400">Drag and drop interface for non-developers.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Template Library</h3>
+                                <p class="text-sm text-gray-400">Start from pre-built templates and customize.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">Team Collaboration</h3>
+                                <p class="text-sm text-gray-400">Real-time editing with version control.</p>
+                            </div>
+                            <div class="usecase-card">
+                                <div class="card-image"></div>
+                                <h3 class="font-semibold text-white mb-2">One-Click Deploy</h3>
+                                <p class="text-sm text-gray-400">Publish to production in seconds.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
