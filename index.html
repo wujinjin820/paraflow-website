@@ -150,7 +150,7 @@
         /* ===== NEVERHACK 风格编号系统 ===== */
         .index-tag {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 14px;
             letter-spacing: 0.1em;
             color: rgba(255, 255, 255, 0.4);
             display: flex;
@@ -173,7 +173,7 @@
         /* 区块标签 */
         .section-tag {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
+            font-size: 14px;
             letter-spacing: 0.2em;
             color: rgba(255, 255, 255, 0.3);
             text-transform: uppercase;
@@ -284,14 +284,14 @@
 
         /* --- Usecase 原地滚动核心样式 --- */
         .sticky-wrapper {
-            height: 400vh;
+            height: 320vh;
             position: relative;
         }
 
         .sticky-container {
             position: sticky;
-            top: 0;
-            height: 100vh;
+            top: 10vh;
+            height: 80vh;
             width: 100%;
             overflow: hidden;
             display: flex;
@@ -322,7 +322,7 @@
             top: 0;
             bottom: 0;
             width: 1px;
-            background: linear-gradient(180deg, transparent 10%, var(--line-color) 30%, var(--line-color) 70%, transparent 90%);
+            background: var(--line-color);
         }
         
         .usecase-frame .v-line-inner.left { left: 42%; }
@@ -439,6 +439,7 @@
             margin: 0 120px;
             height: 100%;
             position: relative;
+            overflow: hidden;
         }
         
         .layout-grid::before {
@@ -464,14 +465,18 @@
         .cards-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-auto-rows: 1fr;
+            align-items: stretch;
+            align-content: center;
+            gap: 16px;
             perspective: 1200px;
-            max-width: 580px;
             width: 100%;
-            margin: 48px auto;
+            height: 100%;
+            max-width: none;
+            margin: 0;
             position: relative;
             box-sizing: border-box;
-            padding: 0 24px;
+            padding: 48px;
         }
         
         .app-card {
@@ -484,7 +489,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            height: auto;
         }
         
         /* 卡片角落装饰 */
@@ -510,9 +515,9 @@
 
         .card-preview {
             width: 100%;
-            aspect-ratio: 4 / 3;
+            aspect-ratio: 16 / 9;
             border-radius: 0;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             position: relative;
             overflow: hidden;
             background-size: cover;
@@ -548,6 +553,7 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             transition: all 0.4s ease;
+            min-height: 36px; /* 2行高度 = 12px * 1.5 * 2 */
         }
         
         .card-desc-full {
@@ -608,7 +614,7 @@
 
         .number-badge {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 600;
             color: var(--primary);
             display: flex;
@@ -628,8 +634,9 @@
             border: 1px solid var(--line-color);
             border-radius: 0;
             padding: 1.5rem;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
+            cursor: pointer;
         }
         
         .role-card::before {
@@ -645,7 +652,8 @@
         }
         
         .role-card:hover {
-            border-color: var(--line-color-hover);
+            background: rgba(0, 191, 75, 0.08);
+            box-shadow: inset 0 0 0 1px var(--primary), 0 0 30px rgba(0, 191, 75, 0.1);
         }
         
         .role-card:hover::before {
@@ -1098,6 +1106,9 @@
                 <div class="h-line top"></div>
                 <div class="dot tl"></div>
                 <div class="dot tr"></div>
+                <div class="dot bl"></div>
+                <div class="dot br"></div>
+                <div class="h-line bottom"></div>
             </div>
             <!-- Content 1 -->
             <div class="view-item active">
@@ -1347,7 +1358,7 @@
                         <p class="text-gray-500 leading-relaxed font-light text-sm">
                                 Think & Plan. Create PRDs and User Flows that act as the logical backbone.
                             </p>
-                        <div class="mt-6 bg-black/60 p-6 h-32 flex items-center justify-center border border-white/5">
+                        <div class="mt-6 bg-black/60 p-6 flex items-center justify-center border border-white/5" style="aspect-ratio: 1/1;">
                                 <div class="text-center">
                                 <div class="text-green-400 text-sm mb-3 font-mono">PRD</div>
                                 <div class="flex gap-3 justify-center">
@@ -1368,7 +1379,7 @@
                         <p class="text-gray-500 leading-relaxed font-light text-sm">
                             Generate high-taste UIs with an editable design that ensures consistency.
                         </p>
-                        <div class="mt-6 bg-black/60 p-6 h-32 flex items-center justify-center border border-white/5">
+                        <div class="mt-6 bg-black/60 p-6 flex items-center justify-center border border-white/5" style="aspect-ratio: 1/1;">
                             <div class="w-full space-y-2">
                                 <div class="h-2 bg-gradient-to-r from-green-400/30 to-transparent"></div>
                                 <div class="h-2 bg-gradient-to-r from-green-400/20 to-transparent w-3/4"></div>
@@ -1386,7 +1397,7 @@
                         <p class="text-gray-500 leading-relaxed font-light text-sm">
                             Production-ready app instantly, databases and APIs ready to deploy.
                         </p>
-                        <div class="mt-6 bg-black/60 p-6 h-32 flex items-center justify-center border border-white/5">
+                        <div class="mt-6 bg-black/60 p-6 flex items-center justify-center border border-white/5" style="aspect-ratio: 1/1;">
                             <div class="font-mono text-xs text-green-400/60">
                                 <div>&lt;App /&gt;</div>
                                 <div class="ml-4 text-green-400/40">├── API</div>
@@ -1419,84 +1430,90 @@
                 <span class="line">Built for <span class="gradient-text-green">every role</span></span>
             </h2>
             
-            <!-- 6个卡片网格 - 带边框分隔 -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-0 stagger-reveal" style="border: 1px solid var(--line-color);">
-                <!-- Startup -->
-                <div class="role-card" style="border-right: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);">
-                    <div class="role-icon">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
-                        </svg>
+            <!-- 6个卡片网格 - 上2下4布局 -->
+            <div class="stagger-reveal" style="border: 1px solid var(--line-color);">
+                <!-- 第一行：2个卡片 -->
+                <div class="grid grid-cols-2 gap-0">
+                    <!-- Startup -->
+                    <div class="role-card" style="border-right: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Startup</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Ship your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously.
+                        </p>
                     </div>
-                    <h3 class="text-lg mb-2">Startup</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed font-light">
-                        Ship your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously.
-                    </p>
+                
+                    <!-- Design Studio -->
+                    <div class="role-card" style="border-bottom: 1px solid var(--line-color);">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Design & Develop Studio</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Deliver high-fidelity production apps to clients faster with distinct design systems.
+                        </p>
+                    </div>
                 </div>
                 
-                <!-- Design Studio -->
-                <div class="role-card" style="border-right: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);">
-                    <div class="role-icon">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-                        </svg>
+                <!-- 第二行：4个卡片 -->
+                <div class="grid grid-cols-4 gap-0">
+                    <!-- PM -->
+                    <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">PM (Product Manager)</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Turn PRDs into live, testable apps. Verify user flows without waiting for engineering.
+                        </p>
                     </div>
-                    <h3 class="text-lg mb-2">Design & Develop Studio</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed font-light">
-                        Deliver high-fidelity production apps to clients faster with distinct design systems.
-                    </p>
-                </div>
-                
-                <!-- PM -->
-                <div class="role-card" style="border-bottom: 1px solid var(--line-color);">
-                    <div class="role-icon">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                        </svg>
+                    
+                    <!-- Product Designer -->
+                    <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Product Designer</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Design with real functional components. Ensure pixel-perfect production.
+                        </p>
                     </div>
-                    <h3 class="text-lg mb-2">PM (Product Manager)</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed font-light">
-                        Turn PRDs into live, testable apps. Verify user flows without waiting for engineering.
-                    </p>
-                </div>
-                
-                <!-- Product Designer -->
-                <div class="role-card" style="border-right: 1px solid var(--line-color);">
-                    <div class="role-icon">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
-                        </svg>
+                    
+                    <!-- Engineer -->
+                    <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Engineer</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Skip the boilerplate. Get clean, modular code and focus on complex backend logic.
+                        </p>
                     </div>
-                    <h3 class="text-lg mb-2">Product Designer</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed font-light">
-                        Design with real functional components. Ensure pixel-perfect production.
-                    </p>
-                </div>
-                
-                <!-- Engineer -->
-                <div class="role-card" style="border-right: 1px solid var(--line-color);">
-                    <div class="role-icon">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
+                    
+                    <!-- Marketing -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Marketing & Operation</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Launch campaign tools and landing pages without blocking engineering.
+                        </p>
                     </div>
-                    <h3 class="text-lg mb-2">Engineer</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed font-light">
-                        Skip the boilerplate. Get clean, modular code and focus on complex backend logic.
-                    </p>
-                </div>
-                
-                <!-- Marketing -->
-                <div class="role-card">
-                    <div class="role-icon">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg mb-2">Marketing & Operation</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed font-light">
-                        Launch campaign tools and landing pages without blocking engineering.
-                    </p>
                 </div>
             </div>
         </div>
