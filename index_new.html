@@ -1,0 +1,2809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paraflow - The Visual Coding Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+        
+        :root {
+            --primary: #00BF4B;
+            --primary-glow: rgba(0, 191, 75, 0.4);
+            --line-color: rgba(255, 255, 255, 0.20);
+            --line-color-hover: rgba(0, 191, 75, 0.3);
+            --dot-color: rgba(255, 255, 255, 0.3);
+            --bg-base: #000000;
+            --bg-accent: rgba(0, 191, 75, 0.02);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            background-color: #000000;
+        }
+        
+        /* 无限画布背景 */
+        .canvas-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: radial-gradient(circle, #333333 1.25px, transparent 1.25px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        
+        /* 全局标题样式 */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 500 !important;
+        }
+
+        /* ===== 全局结构线系统 ===== */
+        
+        /* 固定的垂直结构线 */
+        .global-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .v-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, 
+                rgba(0, 191, 75, 0.20) 0%, 
+                rgba(255, 255, 255, 0.20) 30%, 
+                rgba(255, 255, 255, 0.20) 70%, 
+                rgba(0, 191, 75, 0.20) 100%);
+        }
+        
+        .v-line-1 { left: 5%; }
+        .v-line-2 { left: 50%; }
+        .v-line-3 { right: 5%; }
+        
+        /* 角落装饰点 */
+        .corner-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .corner-dot.top-left { top: 72px; left: 5%; transform: translate(-50%, 0); }
+        .corner-dot.top-right { top: 72px; right: 5%; transform: translate(50%, 0); }
+        .corner-dot.top-center { top: 72px; left: 50%; transform: translate(-50%, 0); }
+        
+        /* Section 水平分割线 */
+        .section-line {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 1px;
+            background: var(--line-color);
+        }
+        
+        .section-line.top { top: 0; }
+        .section-line.bottom { bottom: 0; }
+        
+        /* 交叉装饰点 */
+        .cross-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--dot-color);
+        }
+        
+        .cross-dot::before,
+        .cross-dot::after {
+            content: '';
+            position: absolute;
+            background: var(--dot-color);
+        }
+        
+        .cross-dot::before {
+            width: 12px;
+            height: 1px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .cross-dot::after {
+            width: 1px;
+            height: 12px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .coding-text {
+            font-family: 'VT323', monospace;
+            font-size: 1.15em;
+            letter-spacing: 0.05em;
+            display: inline;
+            color: #ffffff;
+            margin: 0 8px;
+        }
+        
+        .glow-button {
+            background: #00BF4B;
+            box-shadow: 0 0 20px rgba(0, 191, 75, 0.3);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        .glow-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 191, 75, 0.5);
+        }
+
+        /* ===== Hero 画布布局 ===== */
+        .hero-canvas-layout {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+            min-height: 700px;
+            margin: 0 auto;
+        }
+        
+        /* ===== 无限画布抽象背景 ===== */
+        .canvas-infinite-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        /* 中心渐变光晕 */
+        .canvas-infinite-bg::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1200px;
+            height: 1200px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(0, 204, 80, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* 无限延伸线条 - 水平 */
+        .infinite-line {
+            position: absolute;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.03) 20%, 
+                rgba(255, 255, 255, 0.06) 50%, 
+                rgba(255, 255, 255, 0.03) 80%, 
+                transparent 100%);
+            opacity: 0;
+            animation: lineReveal 1.5s ease forwards;
+        }
+        
+        .infinite-line-h {
+            left: 0;
+            right: 0;
+            height: 1px;
+        }
+        
+        .infinite-line-v {
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.03) 20%, 
+                rgba(255, 255, 255, 0.06) 50%, 
+                rgba(255, 255, 255, 0.03) 80%, 
+                transparent 100%);
+        }
+        
+        @keyframes lineReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 边缘渐隐效果 - 暗示无限延伸 */
+        .canvas-fade-edge {
+            position: absolute;
+            pointer-events: none;
+        }
+        
+        .canvas-fade-top {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to bottom, #000000 0%, transparent 100%);
+        }
+        
+        .canvas-fade-bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to top, #000000 0%, transparent 100%);
+        }
+        
+        .canvas-fade-left {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            background: linear-gradient(to right, #000000 0%, transparent 100%);
+        }
+        
+        .canvas-fade-right {
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 100px;
+            background: linear-gradient(to left, #000000 0%, transparent 100%);
+        }
+        
+        /* 角落装饰 - 延伸符号 */
+        .canvas-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            opacity: 0;
+            animation: cornerReveal 1s ease 2s forwards;
+        }
+        
+        .canvas-corner::before,
+        .canvas-corner::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .canvas-corner-tl { top: 60px; left: 60px; }
+        .canvas-corner-tl::before { top: 0; left: 0; width: 20px; height: 1px; }
+        .canvas-corner-tl::after { top: 0; left: 0; width: 1px; height: 20px; }
+        
+        .canvas-corner-tr { top: 60px; right: 60px; }
+        .canvas-corner-tr::before { top: 0; right: 0; width: 20px; height: 1px; }
+        .canvas-corner-tr::after { top: 0; right: 0; width: 1px; height: 20px; }
+        
+        .canvas-corner-bl { bottom: 60px; left: 60px; }
+        .canvas-corner-bl::before { bottom: 0; left: 0; width: 20px; height: 1px; }
+        .canvas-corner-bl::after { bottom: 0; left: 0; width: 1px; height: 20px; }
+        
+        .canvas-corner-br { bottom: 60px; right: 60px; }
+        .canvas-corner-br::before { bottom: 0; right: 0; width: 20px; height: 1px; }
+        .canvas-corner-br::after { bottom: 0; right: 0; width: 1px; height: 20px; }
+        
+        @keyframes cornerReveal {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* 中心十字 */
+        .canvas-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: crossReveal 1s ease 1.5s forwards;
+        }
+        
+        .canvas-crosshair::before,
+        .canvas-crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 204, 80, 0.15);
+        }
+        
+        .canvas-crosshair::before {
+            width: 60px;
+            height: 1px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .canvas-crosshair::after {
+            width: 1px;
+            height: 60px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes crossReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 坐标刻度 */
+        .canvas-tick {
+            position: absolute;
+            width: 8px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            opacity: 0;
+            animation: tickReveal 0.5s ease forwards;
+        }
+        
+        .canvas-tick-v {
+            width: 1px;
+            height: 8px;
+        }
+        
+        @keyframes tickReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 右上角迷你地图 */
+        .canvas-minimap {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            width: 100px;
+            height: 70px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            z-index: 99999;
+            opacity: 0;
+            animation: uiReveal 0.8s ease 2s forwards;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .minimap-viewport {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 20px;
+            border: 1px solid rgba(0, 204, 80, 0.5);
+            border-radius: 2px;
+            background: rgba(0, 204, 80, 0.05);
+        }
+        
+        .minimap-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 1px;
+        }
+        
+        /* 左下角缩放控制 */
+        .canvas-zoom-control {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            z-index: 99999;
+            opacity: 0;
+            animation: uiReveal 0.8s ease 2.2s forwards;
+            font-size: 12px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .zoom-icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .zoom-level {
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-level:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .zoom-level.active {
+            color: #00CC50;
+            background: rgba(0, 204, 80, 0.1);
+        }
+        
+        @keyframes uiReveal {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero-card {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: visible;
+        }
+        
+        .hero-canvas-layout.active .hero-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-card-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+        
+        
+        
+        /* 左上 - DEFINE */
+        .hero-card-define {
+            left: -7px;
+            top: 30px;
+            width: 240px;
+            transition-delay: 0.2s;
+        }
+        
+        /* 右上 - DEVELOP */
+        .hero-card-develop {
+            right: 157px;
+            top: -30px;
+            width: 260px;
+            transition-delay: 0.4s;
+        }
+        
+        /* 左下 - DESIGN */
+        .hero-card-design {
+            left: 171px;
+            bottom: 0;
+            width: 260px;
+            transition-delay: 0.6s;
+        }
+        
+        /* 右下 - APP */
+        .hero-card-app {
+            right: 96px;
+            bottom: -27px;
+            width: 360px;
+            transition-delay: 0.8s;
+        }
+        
+        /* 中间内容 */
+        .hero-center-content {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            z-index: 10;
+            text-align: center;
+            width: 1200px;
+            max-width: 90vw;
+        }
+        
+        .hero-center-content .hero-title {
+            opacity: 1;
+        }
+        
+        .hero-center-content .hero-subtitle {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .hero-canvas-layout.active .hero-center-content .hero-subtitle {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.3s;
+        }
+        
+        .hero-center-content .hero-buttons {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .hero-canvas-layout.active .hero-center-content .hero-buttons {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.5s;
+        }
+        
+        @media (max-width: 1200px) {
+            .hero-card-define { width: 180px; left: 20px; }
+            .hero-card-develop { width: 160px; right: 20px; }
+            .hero-card-design { width: 200px; left: 40px; }
+            .hero-card-app { width: 220px; right: 20px; }
+        }
+        
+        @media (max-width: 900px) {
+            .hero-card { display: none; }
+            .hero-canvas-layout { min-height: 500px; }
+        }
+
+        /* ===== What's New 标签 ===== */
+        .whats-new-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 999px;
+            height: 40px;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        body.loaded .whats-new-tag {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .whats-new-tag .tag-icon {
+            font-size: 14px;
+        }
+        
+        .whats-new-tag .tag-text {
+            color: rgba(255, 255, 255, 0.87);
+        }
+        
+        .whats-new-tag .tag-link {
+            color: var(--primary);
+            text-decoration: none;
+            margin-left: 8px;
+            transition: opacity 0.2s ease;
+        }
+        
+        .whats-new-tag .tag-link:hover {
+            opacity: 0.8;
+        }
+        
+        /* ===== Hero 文字样式 ===== */
+        .hero-text-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+            gap: 24px;
+            height: fit-content;
+        }
+        
+        /* 标题逐字出现效果 */
+        .hero-title {
+            font-size: 72px;
+            font-weight: 500;
+            line-height: 1.1;
+            color: #FFFFFF;
+            text-align: center;
+            margin: 0;
+            white-space: nowrap;
+        }
+        
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #00CC50 0%, #00FF88 50%, #00CC50 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .hero-title .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .hero-text-container.active .hero-title .char {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* 光标效果 */
+        .hero-title .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 0.8em;
+            background: var(--primary);
+            margin-left: 4px;
+            animation: blinkCursor 0.6s step-end infinite;
+            vertical-align: middle;
+            transition: opacity 0.3s ease;
+        }
+        
+        .hero-title .cursor.hidden {
+            opacity: 0;
+            animation: none;
+        }
+        
+        @keyframes blinkCursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            font-weight: 300;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            margin: 0;
+            max-width: 1200px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .hero-text-container.active .hero-subtitle {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.2s;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .hero-text-container.active .hero-buttons {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.4s;
+        }
+        
+        .hero-btn-primary {
+            background: #00BF48;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 500;
+            height: 48px;
+            padding: 0 32px;
+            border-radius: 24px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 191, 72, 0.3);
+        }
+        
+        .hero-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 191, 72, 0.5);
+        }
+        
+        .hero-btn-secondary {
+            background: rgba(50, 59, 54, 0.6);
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 14px 32px;
+            border-radius: 99px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-btn-secondary:hover {
+            background: rgba(50, 59, 54, 0.8);
+        }
+
+        /* ===== Hero AuthKit 风格背景 ===== */
+        .hero-authkit-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* 绿色环境光 - 已禁用 */
+        .ambient-glow {
+            display: none;
+        }
+        
+        /* 细线网格 */
+        .grid-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+            /* 四周渐变淡出 */
+            mask-image: radial-gradient(ellipse 45% 35% at 50% 100%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
+            -webkit-mask-image: radial-gradient(ellipse 45% 35% at 50% 100%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%);
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, black 40%, transparent 80%);
+        }
+        
+        
+        /* 中心交叉点装饰 */
+        .center-cross {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+        }
+        
+        .center-cross::before,
+        .center-cross::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        .center-cross::before {
+            width: 1px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+        }
+        
+        .center-cross::after {
+            width: 100%;
+            height: 1px;
+            top: 50%;
+            left: 0;
+        }
+        
+        /* 中心小点 */
+        .center-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+        }
+        
+        /* 顶部聚光灯光束 - 从导航开始 */
+        .spotlight {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: conic-gradient(
+                from 180deg at 50% 0%,
+                transparent 0deg,
+                rgba(255, 255, 255, 0.02) 50deg,
+                rgba(255, 255, 255, 0.06) 90deg,
+                rgba(255, 255, 255, 0.02) 130deg,
+                transparent 180deg
+            );
+            opacity: 1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* 聚光灯光晕效果 */
+        .spotlight-glow {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 500px;
+            background: radial-gradient(
+                ellipse 50% 100% at 50% 0%,
+                rgba(255, 255, 255, 0.08) 0%,
+                rgba(255, 255, 255, 0.03) 40%,
+                transparent 70%
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== Hero Canvas 样式 ===== */
+        .hero-canvas-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow: visible;
+        }
+        
+        .canvas-wrapper {
+            position: relative;
+            width: 1100px;
+        }
+        
+        .hero-canvas-container {
+            opacity: 1;
+        }
+        
+        /* 浮动卡片通用样式 - 从不同方向弹入 */
+        .floating-card {
+            height: auto;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            will-change: transform, opacity;
+            display: block;
+            border-radius: 12px;
+        }
+        
+        /* Wrapper 基础样式 */
+        .floating-card-wrapper {
+            position: absolute;
+            opacity: 0;
+            will-change: transform, opacity;
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        background 0.4s ease,
+                        box-shadow 0.4s ease;
+            border-radius: 14px;
+            padding: 2px;
+            background: transparent;
+        }
+        
+        /* 卡片1 - 从左侧弹入 */
+        .canvas-wrapper .floating-card-wrapper:nth-child(2) {
+            transform: translateX(-80px) scale(0.8);
+        }
+        
+        /* 卡片2 - 从下方弹入 */
+        .canvas-wrapper .floating-card-wrapper:nth-child(3) {
+            transform: translateY(60px) scale(0.8);
+        }
+        
+        /* 卡片3 - 从右上弹入 */
+        .canvas-wrapper .floating-card-wrapper:nth-child(4) {
+            transform: translate(60px, -40px) scale(0.8);
+        }
+        
+        /* 卡片4 - 从右侧弹入 */
+        .canvas-wrapper .floating-card-wrapper:nth-child(5) {
+            transform: translateX(80px) scale(0.8);
+        }
+        
+        .hero-canvas-container.active .floating-card-wrapper {
+            opacity: 1;
+            transform: translate(0, 0) scale(1);
+        }
+        
+        .canvas-wrapper .floating-card-wrapper:nth-child(2) {
+            transition-delay: 1.2s;
+        }
+        .canvas-wrapper .floating-card-wrapper:nth-child(3) {
+            transition-delay: 1.4s;
+        }
+        .canvas-wrapper .floating-card-wrapper:nth-child(4) {
+            transition-delay: 1.6s;
+        }
+        .canvas-wrapper .floating-card-wrapper:nth-child(5) {
+            transition-delay: 1.8s;
+        }
+        
+        .hero-canvas-container.active .canvas-wrapper .floating-card-wrapper:nth-child(2) {
+            animation: float 6s ease-in-out 2s infinite;
+        }
+        .hero-canvas-container.active .canvas-wrapper .floating-card-wrapper:nth-child(3) {
+            animation: float 6s ease-in-out 2.2s infinite;
+        }
+        .hero-canvas-container.active .canvas-wrapper .floating-card-wrapper:nth-child(4) {
+            animation: float 6s ease-in-out 2.4s infinite;
+        }
+        .hero-canvas-container.active .canvas-wrapper .floating-card-wrapper:nth-child(5) {
+            animation: float 6s ease-in-out 2.6s infinite;
+        }
+        
+        /* 卡片 hover 重力效果 - 使用 Vanilla Tilt */
+        .floating-card {
+            transform-style: preserve-3d;
+            border-radius: 12px;
+            transition: filter 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        /* Hover 时停止动画让 Tilt 接管 */
+        .floating-card-wrapper:hover {
+            animation: none !important;
+            z-index: 100;
+            background: linear-gradient(135deg, 
+                rgba(0, 191, 75, 0.5) 0%, 
+                rgba(0, 255, 100, 0.3) 25%,
+                rgba(0, 191, 75, 0.15) 50%,
+                rgba(0, 255, 100, 0.3) 75%,
+                rgba(0, 191, 75, 0.5) 100%);
+            box-shadow: 
+                0 0 25px rgba(0, 191, 75, 0.5),
+                0 0 50px rgba(0, 191, 75, 0.25),
+                0 0 75px rgba(0, 191, 75, 0.15),
+                0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+        
+        .floating-card-wrapper .floating-card {
+            position: relative;
+            display: block;
+        }
+        
+        /* Tilt 光泽效果样式 */
+        .floating-card-wrapper .js-tilt-glare {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .floating-card-wrapper .js-tilt-glare-inner {
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.4) 0%,
+                rgba(255, 255, 255, 0) 60%
+            ) !important;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 导航栏样式 */
+        .header-transparent {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            transition: background 0.3s ease, backdrop-filter 0.3s ease;
+        }
+        
+        .header-scrolled {
+            background: rgba(5, 8, 6, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .header-scrolled .header-line {
+            background: rgba(255,255,255,0.15) !important;
+        }
+
+        /* 导航链接样式 */
+        .nav-link {
+            color: #DADCE0;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #ffffff;
+        }
+        
+        /* ===== NEVERHACK 风格编号系统 ===== */
+        .index-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .index-tag::before,
+        .index-tag::after {
+            content: '/';
+            color: var(--primary);
+            opacity: 0.6;
+        }
+        
+        .index-tag .num {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* 区块标签 */
+        .section-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-tag .dot {
+            display: none;
+        }
+        
+        .section-tag .line {
+            display: none;
+        }
+        
+        /* 边框卡片 */
+        .nh-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .nh-card:hover {
+            background: rgba(30, 30, 30, 0.9);
+            border-color: rgba(0, 204, 80, 0.3);
+        }
+
+        /* --- 滚动触发动画 --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-80px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(80px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-scale.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* --- Usecase 原地滚动核心样式 --- */
+        .sticky-wrapper {
+            height: 320vh;
+            position: relative;
+        }
+
+        .sticky-container {
+            position: sticky;
+            top: 10vh;
+            height: 80vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            background: transparent;
+        }
+        
+        /* Usecase 内部结构线 */
+        .usecase-frame {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .usecase-frame .h-line {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 1px;
+            background: var(--line-color);
+        }
+        
+        .usecase-frame .h-line.top { top: 0; }
+        .usecase-frame .h-line.bottom { bottom: 0; }
+        
+        .usecase-frame .v-line-inner {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: var(--line-color);
+        }
+        
+        .usecase-frame .v-line-inner.left { left: 42%; }
+        
+        /* 区块内角落点 */
+        .usecase-frame .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .usecase-frame .dot.tl { top: 0; left: 5%; transform: translate(-50%, -50%); }
+        .usecase-frame .dot.tr { top: 0; right: 5%; transform: translate(50%, -50%); }
+        .usecase-frame .dot.bl { bottom: 0; left: 5%; transform: translate(-50%, 50%); }
+        .usecase-frame .dot.br { bottom: 0; right: 5%; transform: translate(50%, 50%); }
+        
+        .view-item {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+        
+        .view-item.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* 标题从左侧滑入动画 - 逐行依次出现 */
+        .view-item .text-content .anim-title {
+            font-size: 60px !important;
+            font-weight: 500 !important;
+            line-height: 1.1;
+        }
+        
+        .view-item .text-content .anim-title .line-1,
+        .view-item .text-content .anim-title .line-2 {
+            display: block;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item .text-content .anim-desc {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item.active .text-content .anim-title .line-1 {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.1s;
+        }
+        
+        .view-item.active .text-content .anim-title .line-2 {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.25s;
+        }
+        
+        .view-item.active .text-content .anim-desc {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.4s;
+        }
+        
+        /* 右侧卡片依次出现动画 */
+        .view-item .cards-grid .app-card {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(1) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.25s;
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(2) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.4s;
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(3) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.55s;
+        }
+        
+        .view-item.active .cards-grid .app-card:nth-child(4) {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition-delay: 0.7s;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 3fr 4fr;
+            gap: 0;
+            align-items: stretch;
+            width: calc(100% - 240px);
+            max-width: none;
+            margin: 0 120px;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .text-content {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-right: 4rem;
+            height: 100%;
+        }
+
+        /* 右侧卡片网格 - 大尺寸创新布局 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-auto-rows: 1fr;
+            align-items: stretch;
+            align-content: center;
+            gap: 16px;
+            perspective: 1200px;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            margin: 0;
+            position: relative;
+            box-sizing: border-box;
+            padding: 48px;
+        }
+        
+        .app-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: auto;
+        }
+        
+        .app-card:hover {
+            background: rgba(30, 30, 30, 0.9);
+            border-color: rgba(0, 204, 80, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .card-preview {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            border-radius: 16px 16px 0 0;
+            margin-bottom: 0;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
+        
+        .app-card:hover .card-preview {
+            transform: scale(1.02);
+        }
+        
+        .card-content {
+            padding: 16px;
+        }
+        
+        .card-content h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .card-content .card-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+        
+        /* 模拟界面元素 */
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+        
+        .preview-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .preview-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .preview-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .preview-row {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .preview-card {
+            flex: 1;
+            height: 20px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .preview-card.accent {
+            background: rgba(0, 191, 75, 0.3);
+        }
+        
+        .preview-sidebar {
+            width: 25%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+        
+        .preview-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .preview-chart {
+            flex: 1;
+            background: linear-gradient(180deg, rgba(0,191,75,0.2) 0%, rgba(0,191,75,0.05) 100%);
+            border-radius: 3px;
+            position: relative;
+        }
+        
+        .preview-chart::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 8px;
+            right: 8px;
+            height: 60%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0,191,75,0.4) 20%, 
+                rgba(0,191,75,0.2) 40%, 
+                rgba(0,191,75,0.5) 60%, 
+                rgba(0,191,75,0.3) 80%, 
+                rgba(0,191,75,0.6) 100%);
+            clip-path: polygon(0 80%, 15% 60%, 30% 70%, 45% 40%, 60% 50%, 75% 20%, 90% 35%, 100% 10%, 100% 100%, 0 100%);
+        }
+        
+        .preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        
+        .preview-list-item {
+            height: 8px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            flex: 1;
+        }
+        
+        .preview-grid-item {
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+        }
+        
+        .preview-phone {
+            width: 40%;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .preview-phone-content {
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding: 4px;
+        }
+        
+        /* 卡片内容区域 */
+        .card-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card-content h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #ffffff;
+        }
+        
+        .card-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .card-desc-full {
+            display: none;
+        }
+        
+        .app-card:hover .card-desc {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Steps 卡片样式 */
+        .step-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .step-card:hover {
+            border-color: rgba(0, 204, 80, 0.4);
+            box-shadow: 0 0 0 1px rgba(0, 204, 80, 0.2);
+        }
+        
+        .step-card img {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .step-card:hover img {
+            transform: scale(1.03);
+        }
+
+        .number-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .number-badge::before,
+        .number-badge::after {
+            content: '/';
+            opacity: 0.5;
+        }
+
+        /* Roles 卡片样式 */
+        .role-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .role-card:hover {
+            background: rgba(30, 30, 30, 0.9);
+            border-color: rgba(0, 204, 80, 0.3);
+        }
+        
+        .role-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 191, 75, 0.1);
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            transition: all 0.4s ease;
+        }
+        
+        .role-icon svg {
+            color: var(--primary) !important;
+        }
+        
+        .role-card:hover .role-icon {
+            background: rgba(0, 191, 75, 0.2);
+        }
+
+        /* 磁性吸附效果 */
+        .magnetic {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* 浮动动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .float-animation-delay-1 {
+            animation: float 6s ease-in-out 1s infinite;
+        }
+        
+        .float-animation-delay-2 {
+            animation: float 6s ease-in-out 2s infinite;
+        }
+
+        /* 标题渐变效果 */
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .gradient-text-green {
+            background: linear-gradient(135deg, var(--primary) 0%, #00FF88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 导航点样式 */
+        .side-dots {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .side-dots.visible {
+            opacity: 1;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .dot:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(1.2);
+        }
+        
+        .dot.active {
+            background: var(--primary);
+            box-shadow: 0 0 12px var(--primary);
+            transform: scale(1.2);
+        }
+        
+        @media (max-width: 1400px) {
+            .side-dots {
+                right: 20px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .side-dots {
+                right: 16px;
+                padding: 10px 6px;
+                gap: 12px;
+            }
+            .dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+        
+        /* 序号指示器 */
+        .view-counter {
+            position: absolute;
+            left: 4%;
+            bottom: 10%;
+            font-size: 120px;
+            font-weight: 200;
+            color: rgba(255, 255, 255, 0.03);
+            line-height: 1;
+            letter-spacing: -0.05em;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .view-counter span {
+            display: inline-block;
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .view-item.active .view-counter span {
+            color: rgba(0, 191, 75, 0.08);
+        }
+
+        /* Section 分隔线 - 带角落点 */
+        .section-divider {
+            position: relative;
+            height: 1px;
+            background: var(--line-color);
+            margin: 0 5%;
+        }
+        
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .section-divider::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        /* 水平装饰线 */
+        .line-h {
+            height: 1px;
+            background: var(--line-color);
+        }
+        
+        /* 垂直装饰线 */
+        .line-v {
+            width: 1px;
+            background: var(--line-color);
+        }
+        
+        /* 带发光的线 */
+        .line-glow {
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+        }
+        
+        /* ===== 高级滚动动画 ===== */
+        
+        /* 文字逐行显现 */
+        .reveal-lines .line {
+            display: block;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal-lines.active .line {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-lines.active .line:nth-child(1) { transition-delay: 0s; }
+        .reveal-lines.active .line:nth-child(2) { transition-delay: 0.1s; }
+        .reveal-lines.active .line:nth-child(3) { transition-delay: 0.2s; }
+        .reveal-lines.active .line:nth-child(4) { transition-delay: 0.3s; }
+        
+        /* 交错动画 */
+        .stagger-reveal > * {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .stagger-reveal.active > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+        .stagger-reveal.active > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.08s; }
+        .stagger-reveal.active > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.16s; }
+        .stagger-reveal.active > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+        .stagger-reveal.active > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.32s; }
+        .stagger-reveal.active > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+        
+        /* 从左侧滑入 */
+        .slide-in-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .slide-in-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* 缩放淡入 */
+        .zoom-in {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .zoom-in.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* 装饰线进入动画 */
+        .line-grow {
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .line-grow.active {
+            transform: scaleX(1);
+        }
+        
+        .line-grow-center {
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .line-grow-center.active {
+            transform: scaleX(1);
+        }
+        
+        /* Hero 结构框架 */
+        .hero-structure {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        
+        .hero-structure .corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .hero-structure .corner::before,
+        .hero-structure .corner::after {
+            content: '';
+            position: absolute;
+            background: var(--line-color);
+        }
+        
+        .hero-structure .corner.tl { top: 5%; left: 5%; }
+        .hero-structure .corner.tl::before { width: 1px; height: 100%; top: 0; left: 0; }
+        .hero-structure .corner.tl::after { width: 100%; height: 1px; top: 0; left: 0; }
+        
+        .hero-structure .corner.tr { top: 5%; right: 5%; }
+        .hero-structure .corner.tr::before { width: 1px; height: 100%; top: 0; right: 0; }
+        .hero-structure .corner.tr::after { width: 100%; height: 1px; top: 0; right: 0; }
+        
+        .hero-structure .corner.bl { bottom: 5%; left: 5%; }
+        .hero-structure .corner.bl::before { width: 1px; height: 100%; bottom: 0; left: 0; }
+        .hero-structure .corner.bl::after { width: 100%; height: 1px; bottom: 0; left: 0; }
+        
+        .hero-structure .corner.br { bottom: 5%; right: 5%; }
+        .hero-structure .corner.br::before { width: 1px; height: 100%; bottom: 0; right: 0; }
+        .hero-structure .corner.br::after { width: 100%; height: 1px; bottom: 0; right: 0; }
+        
+        /* 角落圆点 */
+        .hero-structure .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--dot-color);
+            border-radius: 50%;
+        }
+        
+        .hero-structure .dot.tl { top: 5%; left: 5%; transform: translate(-2px, -2px); }
+        .hero-structure .dot.tr { top: 5%; right: 5%; transform: translate(2px, -2px); }
+        .hero-structure .dot.bl { bottom: 5%; left: 5%; transform: translate(-2px, 2px); }
+        .hero-structure .dot.br { bottom: 5%; right: 5%; transform: translate(2px, 2px); }
+        
+        /* 页面加载动画 */
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        
+        .page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-line {
+            width: 100px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loader-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: var(--primary);
+            animation: loader-progress 1.5s ease forwards;
+        }
+        
+        @keyframes loader-progress {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-[#000000] text-white min-h-screen">
+    <!-- 页面加载动画 -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-line"></div>
+    </div>
+
+
+    <!-- Header -->
+    <header id="mainHeader" class="fixed top-0 left-0 right-0 z-50 header-transparent">
+        <div class="mx-auto w-full px-6 md:px-10">
+            <nav class="w-full relative" style="height: 72px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="flex items-center flex-shrink-0">
+                    <img src="logo.svg" alt="Paraflow" style="height: 26px; width: auto;">
+                </div>
+                <div class="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
+                    <a href="#" class="nav-link text-sm flex items-center gap-1">
+                        Product
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </a>
+                    <a href="#" class="nav-link text-sm">Use Cases</a>
+                    <a href="#" class="nav-link text-sm">Learn</a>
+                    <a href="#" class="nav-link text-sm">Pricing</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="nav-link text-sm font-medium">Log in</a>
+                    <button class="px-6 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style="background: #00BF4B; color: #ffffff;">
+                        Get started
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 无限画布动态背景 -->
+    <div class="canvas-bg"></div>
+    
+    <!-- 无限画布抽象背景 -->
+    <div class="canvas-infinite-bg">
+        <!-- 无限延伸线条 -->
+        <div class="infinite-line infinite-line-h" style="top: 20%; animation-delay: 0.5s;"></div>
+        <div class="infinite-line infinite-line-h" style="top: 40%; animation-delay: 0.7s;"></div>
+        <div class="infinite-line infinite-line-h" style="top: 60%; animation-delay: 0.9s;"></div>
+        <div class="infinite-line infinite-line-h" style="top: 80%; animation-delay: 1.1s;"></div>
+        
+        <div class="infinite-line infinite-line-v" style="left: 15%; animation-delay: 0.6s;"></div>
+        <div class="infinite-line infinite-line-v" style="left: 35%; animation-delay: 0.8s;"></div>
+        <div class="infinite-line infinite-line-v" style="left: 65%; animation-delay: 1.0s;"></div>
+        <div class="infinite-line infinite-line-v" style="left: 85%; animation-delay: 1.2s;"></div>
+        
+        <!-- 边缘渐隐 -->
+        <div class="canvas-fade-edge canvas-fade-top"></div>
+        <div class="canvas-fade-edge canvas-fade-bottom"></div>
+        <div class="canvas-fade-edge canvas-fade-left"></div>
+        <div class="canvas-fade-edge canvas-fade-right"></div>
+        
+        <!-- 角落标记 -->
+        <div class="canvas-corner canvas-corner-tl"></div>
+        <div class="canvas-corner canvas-corner-tr"></div>
+        <div class="canvas-corner canvas-corner-bl"></div>
+        <div class="canvas-corner canvas-corner-br"></div>
+        
+        <!-- 中心十字 -->
+        <div class="canvas-crosshair"></div>
+        
+        <!-- 右上角迷你地图 -->
+        <div class="canvas-minimap">
+            <div class="minimap-viewport"></div>
+            <div class="minimap-dot" style="left: 20%; top: 30%;"></div>
+            <div class="minimap-dot" style="left: 70%; top: 25%;"></div>
+            <div class="minimap-dot" style="left: 25%; top: 65%;"></div>
+            <div class="minimap-dot" style="left: 65%; top: 70%;"></div>
+        </div>
+        
+        <!-- 左下角缩放控制 -->
+        <div class="canvas-zoom-control">
+            <svg class="zoom-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <span class="zoom-level" data-level="80">80%</span>
+            <span class="zoom-level active" data-level="100">100%</span>
+            <span class="zoom-level" data-level="120">120%</span>
+        </div>
+        
+        <!-- 边缘刻度 -->
+        <div class="canvas-tick" style="left: 20%; top: 58px; animation-delay: 2s;"></div>
+        <div class="canvas-tick" style="left: 40%; top: 58px; animation-delay: 2.1s;"></div>
+        <div class="canvas-tick" style="left: 60%; top: 58px; animation-delay: 2.2s;"></div>
+        <div class="canvas-tick" style="left: 80%; top: 58px; animation-delay: 2.3s;"></div>
+        
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 25%; animation-delay: 2.1s;"></div>
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 45%; animation-delay: 2.2s;"></div>
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 65%; animation-delay: 2.3s;"></div>
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 85%; animation-delay: 2.4s;"></div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative flex flex-col items-center px-6" style="z-index: 2; padding-top: 120px; padding-bottom: 80px; min-height: 100vh;" id="heroSection">
+        
+        <!-- What's New 标签 - 顶部居中 -->
+        <div class="whats-new-tag" style="margin-bottom: 40px;">
+            <span class="tag-icon">🔥</span>
+            <span class="tag-text">What's New: Copy to Figma now LIVE!</span>
+            <a href="#" class="tag-link">Try it out →</a>
+        </div>
+        
+        <!-- Hero 画布容器 -->
+        <div class="hero-canvas-layout">
+            
+            <!-- 左上 - DEFINE 卡片 -->
+            <div class="hero-card hero-card-define">
+                <img src="images/hero-define.webp" alt="Define - Product Charter" class="hero-card-img">
+            </div>
+            
+            <!-- 右上 - DEVELOP 卡片 -->
+            <div class="hero-card hero-card-develop">
+                <img src="images/hero-develop.png.webp" alt="Develop - SQL Code" class="hero-card-img">
+            </div>
+            
+            <!-- 左下 - DESIGN 卡片 -->
+            <div class="hero-card hero-card-design">
+                <img src="images/hero-design.pn.webp" alt="Design - Typography" class="hero-card-img">
+            </div>
+            
+            <!-- 右下 - APP 截图 -->
+            <div class="hero-card hero-card-app">
+                <img src="images/hero-app.webp" alt="App Preview" class="hero-card-img">
+            </div>
+            
+            <!-- 中间文字区域 -->
+            <div class="hero-center-content">
+                <h1 class="hero-title" data-text="The Visual Coding Agent"><span class="cursor"></span></h1>
+                
+                <p class="hero-subtitle">
+                    Vibe coding tools make apps. The Visual Coding Agent builds real apps.
+                </p>
+                
+                <div class="hero-buttons">
+                    <button class="hero-btn-primary">Start building now</button>
+                    <button class="hero-btn-secondary">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                        Watch a video
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Usecase Section -->
+    <section class="sticky-wrapper" id="stickySection">
+        <!-- 导航点 -->
+        <div class="side-dots" id="sideDots">
+            <div class="dot active" data-index="0"></div>
+            <div class="dot" data-index="1"></div>
+            <div class="dot" data-index="2"></div>
+            <div class="dot" data-index="3"></div>
+        </div>
+        
+        <div class="sticky-container">
+            <!-- Content 1 -->
+            <div class="view-item active">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <!-- 索引标签 -->
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_001</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">Build <span class="gradient-text-green">complete apps,</span></span>
+                            <span class="line-2">front to back.</span>
+                        </h2>
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Design UI, define logic, and work with real data in one canvas. No handoffs. No glue code. Just shippable software.
+                        </p>
+                    </div>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;">
+                                <div class="preview-header">
+                                    <div class="preview-dot"></div>
+                                    <div class="preview-dot"></div>
+                                    <div class="preview-dot"></div>
+                                </div>
+                                <div class="preview-content">
+                                    <div class="preview-row" style="flex:1;">
+                                        <div class="preview-sidebar"></div>
+                                        <div class="preview-main">
+                                            <div class="preview-grid">
+                                                <div class="preview-grid-item"></div>
+                                                <div class="preview-grid-item"></div>
+                                                <div class="preview-grid-item"></div>
+                                                <div class="preview-grid-item"></div>
+                                                <div class="preview-grid-item"></div>
+                                                <div class="preview-grid-item"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Interactive Portfolio</h3>
+                                <p class="card-desc">Full-stack portfolio with real-time updates and seamless authentication.</p>
+                                <p class="card-desc-full">Showcase your work with dynamic galleries, contact forms, and analytics dashboard.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;">
+                                <div class="preview-header">
+                                    <div class="preview-dot"></div>
+                                    <div class="preview-dot"></div>
+                                    <div class="preview-dot"></div>
+                                </div>
+                                <div class="preview-content">
+                                    <div class="preview-chart"></div>
+                                    <div class="preview-row">
+                                        <div class="preview-card"></div>
+                                        <div class="preview-card accent"></div>
+                                        <div class="preview-card"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Sales Lead Tracker</h3>
+                                <p class="card-desc">Manage your sales pipeline with visual kanban boards and insights.</p>
+                                <p class="card-desc-full">Track deals, automate follow-ups, and generate revenue reports instantly.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;">
+                                <div class="preview-header">
+                                    <div class="preview-dot"></div>
+                                    <div class="preview-dot"></div>
+                                    <div class="preview-dot"></div>
+                                </div>
+                                <div class="preview-content">
+                                    <div class="preview-list" style="flex:1;">
+                                        <div class="preview-list-item" style="width:80%;"></div>
+                                        <div class="preview-list-item" style="width:60%;"></div>
+                                        <div class="preview-list-item" style="width:90%;"></div>
+                                        <div class="preview-list-item" style="width:70%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Customer Feedback</h3>
+                                <p class="card-desc">Gather user insights with customizable surveys and NPS tracking.</p>
+                                <p class="card-desc-full">Analyze sentiment, identify trends, and improve customer satisfaction.</p>
+                    </div>
+                </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;">
+                                <div class="preview-content" style="align-items:center; justify-content:center;">
+                                    <div class="preview-phone">
+                                        <div class="preview-phone-content">
+                                            <div class="preview-bar" style="width:60%;"></div>
+                                            <div class="preview-card" style="height:12px;"></div>
+                                            <div class="preview-card accent" style="height:12px;"></div>
+                                            <div class="preview-card" style="height:12px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Restaurant System</h3>
+                                <p class="card-desc">Dual-interface system for customers and kitchen management.</p>
+                                <p class="card-desc-full">Handle orders, reservations, inventory, and staff scheduling in one place.</p>
+            </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+<!-- Content 2 -->
+            <div class="view-item">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_002</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">High-quality UI by default.</span>
+                            <span class="line-2"><span class="gradient-text-green">Customizable when it matters.</span></span>
+                        </h2>
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Define a shared design system, then refine it together. Designers can step in to fine-tune every detail.
+                        </p>
+                    </div>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Design System</h3>
+                                <p class="card-desc">Create unified visual language with tokens, themes, and variants.</p>
+                                <p class="card-desc-full">Maintain consistency across all your products and teams.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">UI Components</h3>
+                                <p class="card-desc">Pre-built components that adapt to your brand automatically.</p>
+                                <p class="card-desc-full">Buttons, forms, modals, and more—all production-ready.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Grid Layouts</h3>
+                                <p class="card-desc">Responsive layouts that work on every screen size.</p>
+                                <p class="card-desc-full">From mobile to desktop, your UI adapts seamlessly.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Refinement</h3>
+                                <p class="card-desc">Fine-tune every detail without breaking consistency.</p>
+                                <p class="card-desc-full">Perfect pixels, precise spacing, flawless typography.</p>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content 3 -->
+            <div class="view-item">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_003</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">From realistic mockups</span>
+                            <span class="line-2"><span class="gradient-text-green">to real AI apps.</span></span>
+                        </h2>
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Easily connect data, models, and services with flexible APIs and built-in integrations.
+                        </p>
+                    </div>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">API Integration</h3>
+                                <p class="card-desc">Connect to any REST or GraphQL API with zero configuration.</p>
+                                <p class="card-desc-full">Authentication, rate limiting, and error handling built-in.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">AI Models</h3>
+                                <p class="card-desc">Integrate GPT, Claude, and custom models seamlessly.</p>
+                                <p class="card-desc-full">Build AI-powered features without ML expertise.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Data Sync</h3>
+                                <p class="card-desc">Real-time synchronization across all your data sources.</p>
+                                <p class="card-desc-full">Keep everything in sync with automatic conflict resolution.</p>
+                    </div>
+                </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Live Service</h3>
+                                <p class="card-desc">Deploy instantly with global edge distribution.</p>
+                                <p class="card-desc-full">Zero-downtime deployments with automatic rollbacks.</p>
+            </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content 4 -->
+            <div class="view-item">
+                <div class="layout-grid">
+                    <div class="text-content space-y-6">
+                        <div class="index-tag anim-desc" style="transition-delay: 0s;">
+                            <span class="num">UC_004</span>
+                            <span>USECASE</span>
+                        </div>
+                        <h2 class="anim-title">
+                            <span class="line-1">Enable anyone to build</span>
+                            <span class="line-2"><span class="gradient-text-green">the tools they need.</span></span>
+                        </h2>
+                        <p class="text-lg text-gray-500 leading-relaxed max-w-lg font-light anim-desc">
+                            Empower every team member to create lightweight, customizable tools that fit how they actually work.
+                        </p>
+                    </div>
+                    <div class="cards-grid">
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Internal Tools</h3>
+                                <p class="card-desc">Build admin panels, dashboards, and workflows in minutes.</p>
+                                <p class="card-desc-full">No engineering queue—teams build what they need.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Custom Flow</h3>
+                                <p class="card-desc">Visual workflow builder for any business process.</p>
+                                <p class="card-desc-full">Automate approvals, notifications, and data pipelines.</p>
+                        </div>
+                        </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Team Collaboration</h3>
+                                <p class="card-desc">Real-time multiplayer editing and commenting.</p>
+                                <p class="card-desc-full">Version control and permissions for enterprise teams.</p>
+                    </div>
+                </div>
+                        <div class="app-card">
+                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-content">
+                                <h3 class="font-semibold text-white">Self Service</h3>
+                                <p class="card-desc">Empower non-technical users to build their own tools.</p>
+                                <p class="card-desc-full">Guardrails ensure security and best practices.</p>
+            </div>
+        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Steps Section -->
+    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="stepsSection">
+        
+        <div class="mx-auto" style="max-width: 1200px;">
+            <!-- Section 标签 -->
+            <div class="section-tag mb-8 justify-center reveal">
+                <span class="dot"></span>
+                <span>HOW IT WORKS</span>
+                <span class="line"></span>
+            </div>
+            
+            <h2 class="text-5xl md:text-6xl mb-6 text-center reveal-lines">
+                <span class="line"><span class="gradient-text">Define, design and develop</span></span>
+                <span class="line"><span class="text-white">on an infinite canvas.</span></span>
+            </h2>
+            
+            <p class="text-lg text-gray-500 text-center mb-20 max-w-3xl mx-auto font-light reveal" style="transition-delay: 0.2s;">
+                Organize your ideas in order, design beautifully, and turn them into production apps.
+            </p>
+            
+            <div class="grid md:grid-cols-3 gap-4 stagger-reveal">
+                <!-- Step 01 -->
+                <div class="step-card reveal-scale" style="transition-delay: 0.1s;">
+                    <div class="space-y-4">
+                        <div class="number-badge">01</div>
+                        <h3 class="text-xl mb-2">Define with Logic</h3>
+                        <p class="text-gray-500 leading-relaxed font-light text-sm">
+                                Think & Plan. Create PRDs and User Flows that act as the logical backbone.
+                            </p>
+                        <div class="mt-6 rounded-xl overflow-hidden">
+                            <img src="images/Steps 01.webp" alt="Define with Logic" style="width: 100%; height: auto; display: block;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 02 -->
+                <div class="step-card reveal-scale" style="transition-delay: 0.2s;">
+                    <div class="space-y-4">
+                        <div class="number-badge">02</div>
+                        <h3 class="text-xl mb-2">Design like a Pro</h3>
+                        <p class="text-gray-500 leading-relaxed font-light text-sm">
+                            Generate high-taste UIs with an editable design that ensures consistency.
+                        </p>
+                        <div class="mt-6 rounded-xl overflow-hidden">
+                            <img src="images/Steps 02.webp" alt="Design like a Pro" style="width: 100%; height: auto; display: block;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 03 -->
+                <div class="step-card reveal-scale" style="transition-delay: 0.3s;">
+                    <div class="space-y-4">
+                        <div class="number-badge">03</div>
+                        <h3 class="text-xl mb-2">Develop to Real</h3>
+                        <p class="text-gray-500 leading-relaxed font-light text-sm">
+                            Production-ready app instantly, databases and APIs ready to deploy.
+                        </p>
+                        <div class="mt-6 rounded-xl overflow-hidden">
+                            <img src="images/Steps 03.webp" alt="Develop to Real" style="width: 100%; height: auto; display: block;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roles Section -->
+    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="rolesSection">
+        <div class="mx-auto" style="max-width: 1200px;">
+            <!-- Section 标签 -->
+            <div class="section-tag mb-8 justify-center reveal">
+                <span class="dot"></span>
+                <span>FOR TEAMS</span>
+                <span class="line"></span>
+            </div>
+            
+            <h2 class="text-5xl md:text-6xl mb-16 text-center reveal-lines">
+                <span class="line">Built for <span class="gradient-text-green">every role</span></span>
+            </h2>
+            
+            <!-- 6个卡片网格 - 上2下4布局 -->
+            <div class="stagger-reveal">
+                <!-- 第一行：2个卡片 -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- Startup -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Startup</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Ship your MVP in days, not months. Iterate on your AI logic and UI interface simultaneously.
+                        </p>
+                    </div>
+                
+                    <!-- Design Studio -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Design & Develop Studio</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Deliver high-fidelity production apps to clients faster with distinct design systems.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 第二行：4个卡片 -->
+                <div class="grid grid-cols-4 gap-4">
+                    <!-- PM -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">PM (Product Manager)</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Turn PRDs into live, testable apps. Verify user flows without waiting for engineering.
+                        </p>
+                    </div>
+                    
+                    <!-- Product Designer -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Product Designer</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Design with real functional components. Ensure pixel-perfect production.
+                        </p>
+                    </div>
+                    
+                    <!-- Engineer -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Engineer</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Skip the boilerplate. Get clean, modular code and focus on complex backend logic.
+                        </p>
+                    </div>
+                    
+                    <!-- Marketing -->
+                    <div class="role-card">
+                        <div class="role-icon">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg mb-2">Marketing & Operation</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed font-light">
+                            Launch campaign tools and landing pages without blocking engineering.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="ctaSection">
+        
+        <div class="max-w-4xl mx-auto text-center relative">
+            <!-- Section 标签 -->
+            <div class="section-tag mb-8 justify-center reveal">
+                <span class="dot"></span>
+                <span>GET STARTED</span>
+                <span class="line"></span>
+            </div>
+            
+            <h2 class="text-5xl md:text-7xl mb-12 reveal">
+                Start creating with<br>
+                <span class="gradient-text-green">The Visual Coding Agent.</span>
+            </h2>
+            <div class="reveal" style="transition-delay: 0.1s;">
+                <button class="glow-button px-12 py-5 text-lg">
+                Start building now
+            </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative" style="padding: 80px 5%; z-index: 2;">
+        
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="text-xl mb-4 font-medium">@Paraflow</div>
+                    <p class="text-gray-600 text-sm font-light leading-relaxed">
+                        The infinite canvas for building real software. From idea to production in one flow.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-5 text-gray-400 text-xs tracking-wider">PRODUCT</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Define</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Design</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Develop</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">What's New</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-5 text-gray-400 text-xs tracking-wider">RESOURCES</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-5 text-gray-400 text-xs tracking-wider">LEGAL</h4>
+                    <ul class="space-y-3 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between">
+                <div class="text-sm text-gray-600 mb-4 md:mb-0">
+                    © 2026 PARAFLOW INC.
+                </div>
+                <div class="flex items-center gap-3">
+                    <a href="#" class="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="w-9 h-9 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ===== 页面加载动画 =====
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('pageLoader').classList.add('hidden');
+                document.body.classList.add('loaded');
+                
+                // 触发首屏动画
+                document.querySelectorAll('#heroSection .reveal, #heroSection .reveal-lines, #heroSection .stagger-reveal, #heroSection .section-tag').forEach(el => {
+                    el.classList.add('active');
+                });
+                
+                // 触发 Hero 文字和卡片入场动画
+                const heroTextContainer = document.querySelector('.hero-text-container');
+                const heroCanvasLayout = document.querySelector('.hero-canvas-layout');
+                const heroTitle = document.querySelector('.hero-title');
+                const cursor = heroTitle.querySelector('.cursor');
+                const text = heroTitle.getAttribute('data-text');
+                
+                // 直接显示标题，带渐变效果
+                const words = text.split(' ');
+                heroTitle.innerHTML = '';
+                
+                words.forEach((word, wordIndex) => {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.className = 'word';
+                    wordSpan.style.opacity = '0';
+                    wordSpan.style.transform = 'translateY(20px)';
+                    wordSpan.style.display = 'inline-block';
+                    wordSpan.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    wordSpan.style.transitionDelay = `${wordIndex * 0.1}s`;
+                    
+                    if (word === 'Visual') {
+                        wordSpan.classList.add('gradient-text');
+                    }
+                    
+                    wordSpan.textContent = word;
+                    heroTitle.appendChild(wordSpan);
+                    
+                    // 添加空格
+                    if (wordIndex < words.length - 1) {
+                        heroTitle.appendChild(document.createTextNode('\u00A0'));
+                    }
+                });
+                
+                // 触发动画
+                setTimeout(() => {
+                    heroTitle.querySelectorAll('.word').forEach(word => {
+                        word.style.opacity = '1';
+                        word.style.transform = 'translateY(0)';
+                    });
+                    
+                    // 触发画布和其他元素动画
+                    setTimeout(() => {
+                        if (heroTextContainer) heroTextContainer.classList.add('active');
+                        if (heroCanvasLayout) heroCanvasLayout.classList.add('active');
+                    }, 600);
+                }, 100);
+            }, 1500);
+        });
+
+        // ===== 卡片鼠标重力跟随效果 - 使用 Vanilla Tilt =====
+        const floatingCardWrappers = document.querySelectorAll('.floating-card-wrapper');
+        
+        floatingCardWrappers.forEach(wrapper => {
+            // 保存原始动画
+            let originalAnimation = '';
+            
+            // 初始化 Vanilla Tilt
+            VanillaTilt.init(wrapper, {
+                max: 20,           // 最大倾斜角度
+                speed: 300,        // 过渡速度
+                glare: true,       // 启用光泽效果
+                "max-glare": 0.35, // 最大光泽强度
+                scale: 1.08,       // hover 时放大比例
+                perspective: 800,  // 透视距离
+                easing: "cubic-bezier(.03,.98,.52,.99)", // 缓动函数
+                transition: true,  // 启用过渡
+                reset: true,       // 鼠标离开时重置
+                "reset-to-start": true,
+                gyroscope: false   // 禁用陀螺仪（移动设备）
+            });
+            
+            // 停止浮动动画当hover，让Tilt完全接管transform
+            wrapper.addEventListener('mouseenter', () => {
+                originalAnimation = getComputedStyle(wrapper).animation;
+                wrapper.style.animation = 'none';
+            });
+            
+            wrapper.addEventListener('mouseleave', () => {
+                // 延迟恢复动画，等Tilt重置完成
+                setTimeout(() => {
+                    wrapper.style.animation = '';
+                }, 300);
+            });
+        });
+
+        // ===== 导航栏滚动效果 =====
+        const mainHeader = document.getElementById('mainHeader');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                mainHeader.classList.remove('header-transparent');
+                mainHeader.classList.add('header-scrolled');
+            } else {
+                mainHeader.classList.remove('header-scrolled');
+                mainHeader.classList.add('header-transparent');
+            }
+        });
+
+        // ===== 滚动触发动画 =====
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-lines, .stagger-reveal, .slide-in-left, .zoom-in, .line-grow, .line-grow-center, .section-tag');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('active');
+                    }, 50);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -80px 0px'
+        });
+        
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // ===== Usecase 原地滚动 =====
+        const wrapper = document.getElementById('stickySection');
+        const items = document.querySelectorAll('.view-item');
+        const sideDots = document.getElementById('sideDots');
+        const navDots = sideDots.querySelectorAll('.dot');
+
+        window.addEventListener('scroll', () => {
+            const wrapperRect = wrapper.getBoundingClientRect();
+            const wrapperTop = wrapper.offsetTop;
+            const scrollPos = window.pageYOffset - wrapperTop;
+            const viewHeight = window.innerHeight;
+            
+            // 显示/隐藏导航点
+            if (wrapperRect.top <= 0 && wrapperRect.bottom >= viewHeight) {
+                sideDots.classList.add('visible');
+            } else {
+                sideDots.classList.remove('visible');
+            }
+            
+            let progress = scrollPos / (wrapper.offsetHeight - viewHeight);
+            progress = Math.max(0, Math.min(1, progress));
+            
+            const index = Math.min(3, Math.floor(progress * 4));
+            
+            items.forEach((item, i) => {
+                if (i === index) {
+                    item.classList.add('active');
+                    navDots[i].classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                    navDots[i].classList.remove('active');
+                }
+            });
+        });
+        
+        // 点击导航点跳转
+        navDots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                const wrapperTop = wrapper.offsetTop;
+                const targetScroll = wrapperTop + (i * window.innerHeight);
+                window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
