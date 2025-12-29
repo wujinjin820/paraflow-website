@@ -24,7 +24,17 @@
         body {
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            background: #000000;
+            background-color: #000000;
+        }
+        
+        /* 无限画布背景 */
+        .canvas-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background-image: radial-gradient(circle, #333333 1.25px, transparent 1.25px);
+            background-size: 20px 20px;
+            pointer-events: none;
         }
         
         /* 全局标题样式 */
@@ -142,13 +152,406 @@
             box-shadow: 0 0 30px rgba(0, 191, 75, 0.5);
         }
 
+        /* ===== Hero 画布布局 ===== */
+        .hero-canvas-layout {
+            position: relative;
+            width: 100%;
+            max-width: 1400px;
+            min-height: 700px;
+            margin: 0 auto;
+        }
+        
+        /* ===== 无限画布抽象背景 ===== */
+        .canvas-infinite-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        /* 中心渐变光晕 */
+        .canvas-infinite-bg::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1200px;
+            height: 1200px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(0, 204, 80, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* 无限延伸线条 - 水平 */
+        .infinite-line {
+            position: absolute;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.03) 20%, 
+                rgba(255, 255, 255, 0.06) 50%, 
+                rgba(255, 255, 255, 0.03) 80%, 
+                transparent 100%);
+            opacity: 0;
+            animation: lineReveal 1.5s ease forwards;
+        }
+        
+        .infinite-line-h {
+            left: 0;
+            right: 0;
+            height: 1px;
+        }
+        
+        .infinite-line-v {
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(180deg, 
+                transparent 0%, 
+                rgba(255, 255, 255, 0.03) 20%, 
+                rgba(255, 255, 255, 0.06) 50%, 
+                rgba(255, 255, 255, 0.03) 80%, 
+                transparent 100%);
+        }
+        
+        @keyframes lineReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 边缘渐隐效果 - 暗示无限延伸 */
+        .canvas-fade-edge {
+            position: absolute;
+            pointer-events: none;
+        }
+        
+        .canvas-fade-top {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to bottom, #000000 0%, transparent 100%);
+        }
+        
+        .canvas-fade-bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to top, #000000 0%, transparent 100%);
+        }
+        
+        .canvas-fade-left {
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            background: linear-gradient(to right, #000000 0%, transparent 100%);
+        }
+        
+        .canvas-fade-right {
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 100px;
+            background: linear-gradient(to left, #000000 0%, transparent 100%);
+        }
+        
+        /* 角落装饰 - 延伸符号 */
+        .canvas-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            opacity: 0;
+            animation: cornerReveal 1s ease 2s forwards;
+        }
+        
+        .canvas-corner::before,
+        .canvas-corner::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .canvas-corner-tl { top: 60px; left: 60px; }
+        .canvas-corner-tl::before { top: 0; left: 0; width: 20px; height: 1px; }
+        .canvas-corner-tl::after { top: 0; left: 0; width: 1px; height: 20px; }
+        
+        .canvas-corner-tr { top: 60px; right: 60px; }
+        .canvas-corner-tr::before { top: 0; right: 0; width: 20px; height: 1px; }
+        .canvas-corner-tr::after { top: 0; right: 0; width: 1px; height: 20px; }
+        
+        .canvas-corner-bl { bottom: 60px; left: 60px; }
+        .canvas-corner-bl::before { bottom: 0; left: 0; width: 20px; height: 1px; }
+        .canvas-corner-bl::after { bottom: 0; left: 0; width: 1px; height: 20px; }
+        
+        .canvas-corner-br { bottom: 60px; right: 60px; }
+        .canvas-corner-br::before { bottom: 0; right: 0; width: 20px; height: 1px; }
+        .canvas-corner-br::after { bottom: 0; right: 0; width: 1px; height: 20px; }
+        
+        @keyframes cornerReveal {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* 中心十字 */
+        .canvas-crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: crossReveal 1s ease 1.5s forwards;
+        }
+        
+        .canvas-crosshair::before,
+        .canvas-crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 204, 80, 0.15);
+        }
+        
+        .canvas-crosshair::before {
+            width: 60px;
+            height: 1px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .canvas-crosshair::after {
+            width: 1px;
+            height: 60px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        @keyframes crossReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 坐标刻度 */
+        .canvas-tick {
+            position: absolute;
+            width: 8px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            opacity: 0;
+            animation: tickReveal 0.5s ease forwards;
+        }
+        
+        .canvas-tick-v {
+            width: 1px;
+            height: 8px;
+        }
+        
+        @keyframes tickReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 右上角迷你地图 */
+        .canvas-minimap {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            width: 100px;
+            height: 70px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            z-index: 99999;
+            opacity: 0;
+            animation: uiReveal 0.8s ease 2s forwards;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .minimap-viewport {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 20px;
+            border: 1px solid rgba(0, 204, 80, 0.5);
+            border-radius: 2px;
+            background: rgba(0, 204, 80, 0.05);
+        }
+        
+        .minimap-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 1px;
+        }
+        
+        /* 左下角缩放控制 */
+        .canvas-zoom-control {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            z-index: 99999;
+            opacity: 0;
+            animation: uiReveal 0.8s ease 2.2s forwards;
+            font-size: 12px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .zoom-icon {
+            width: 14px;
+            height: 14px;
+            opacity: 0.5;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .zoom-level {
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-level:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .zoom-level.active {
+            color: #00CC50;
+            background: rgba(0, 204, 80, 0.1);
+        }
+        
+        @keyframes uiReveal {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .hero-card {
+            position: absolute;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: visible;
+        }
+        
+        .hero-canvas-layout.active .hero-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hero-card-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+        
+        
+        
+        /* 左上 - DEFINE */
+        .hero-card-define {
+            left: -7px;
+            top: 30px;
+            width: 240px;
+            transition-delay: 0.2s;
+        }
+        
+        /* 右上 - DEVELOP */
+        .hero-card-develop {
+            right: 157px;
+            top: -30px;
+            width: 260px;
+            transition-delay: 0.4s;
+        }
+        
+        /* 左下 - DESIGN */
+        .hero-card-design {
+            left: 171px;
+            bottom: 0;
+            width: 260px;
+            transition-delay: 0.6s;
+        }
+        
+        /* 右下 - APP */
+        .hero-card-app {
+            right: 96px;
+            bottom: -27px;
+            width: 360px;
+            transition-delay: 0.8s;
+        }
+        
+        /* 中间内容 */
+        .hero-center-content {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            z-index: 10;
+            text-align: center;
+            width: 1200px;
+            max-width: 90vw;
+        }
+        
+        .hero-center-content .hero-title {
+            opacity: 1;
+        }
+        
+        .hero-center-content .hero-subtitle {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .hero-canvas-layout.active .hero-center-content .hero-subtitle {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.3s;
+        }
+        
+        .hero-center-content .hero-buttons {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .hero-canvas-layout.active .hero-center-content .hero-buttons {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.5s;
+        }
+        
+        @media (max-width: 1200px) {
+            .hero-card-define { width: 180px; left: 20px; }
+            .hero-card-develop { width: 160px; right: 20px; }
+            .hero-card-design { width: 200px; left: 40px; }
+            .hero-card-app { width: 220px; right: 20px; }
+        }
+        
+        @media (max-width: 900px) {
+            .hero-card { display: none; }
+            .hero-canvas-layout { min-height: 500px; }
+        }
+
         /* ===== What's New 标签 ===== */
         .whats-new-tag {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: #1a1a1a;
-            border: 1px solid #333;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
             border-radius: 999px;
             height: 40px;
             padding: 0 20px;
@@ -157,6 +560,11 @@
             opacity: 0;
             transform: translateY(20px);
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        body.loaded .whats-new-tag {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         .whats-new-tag .tag-icon {
@@ -178,11 +586,6 @@
             opacity: 0.8;
         }
         
-        .hero-text-container.active .whats-new-tag {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         /* ===== Hero 文字样式 ===== */
         .hero-text-container {
             display: flex;
@@ -198,12 +601,28 @@
         
         /* 标题逐字出现效果 */
         .hero-title {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 500;
             line-height: 1.1;
             color: #FFFFFF;
             text-align: center;
             margin: 0;
+            white-space: nowrap;
+        }
+        
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #00CC50 0%, #00FF88 50%, #00CC50 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .hero-title .char {
@@ -444,23 +863,6 @@
             width: 1100px;
         }
         
-        /* 画布从右侧飞入 */
-        .canvas-bg {
-            width: 1100px;
-            height: auto;
-            display: block;
-            image-rendering: -webkit-optimize-contrast;
-            opacity: 0;
-            transform: translateX(100px) scale(0.95);
-            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .hero-canvas-container.active .canvas-bg {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-            transition-delay: 0.6s;
-        }
-        
         .hero-canvas-container {
             opacity: 1;
         }
@@ -656,58 +1058,27 @@
         }
         
         .section-tag .dot {
-            width: 4px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 50%;
+            display: none;
         }
         
         .section-tag .line {
-            width: 24px;
-            height: 1px;
-            background: linear-gradient(90deg, var(--primary), transparent);
+            display: none;
         }
         
-        /* 边框卡片 - NEVERHACK风格 */
+        /* 边框卡片 */
         .nh-card {
-            background: rgba(15, 15, 15, 0.8);
-            border: 1px solid var(--line-color);
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             position: relative;
             transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
-        .nh-card::before {
-            content: '';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 4px;
-            height: 4px;
-            background: var(--dot-color);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-        
-        .nh-card::after {
-            content: '';
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 4px;
-            height: 4px;
-            background: var(--dot-color);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-        
         .nh-card:hover {
-            border-color: var(--line-color-hover);
-        }
-        
-        .nh-card:hover::before,
-        .nh-card:hover::after {
-            background: var(--primary);
+            background: rgba(30, 30, 30, 0.9);
+            border-color: rgba(0, 204, 80, 0.3);
         }
 
         /* --- 滚动触发动画 --- */
@@ -769,7 +1140,7 @@
             overflow: hidden;
             display: flex;
             align-items: center;
-            background: #000000;
+            background: transparent;
         }
         
         /* Usecase 内部结构线 */
@@ -914,16 +1285,6 @@
             position: relative;
             overflow: hidden;
         }
-        
-        .layout-grid::before {
-            content: '';
-            position: absolute;
-            left: calc(3 / 7 * 100%);
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            background: var(--line-color);
-        }
 
         .text-content {
             text-align: left;
@@ -953,8 +1314,10 @@
         }
         
         .app-card {
-            background: #000000;
-            border: 0.5px solid #333333;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 0;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -966,9 +1329,9 @@
         }
         
         .app-card:hover {
-            border-color: rgba(0, 191, 75, 0.3);
+            background: rgba(30, 30, 30, 0.9);
+            border-color: rgba(0, 204, 80, 0.3);
             transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
         .card-preview {
@@ -1162,48 +1525,30 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        /* Steps 卡片样式 - NEVERHACK风格 */
+        /* Steps 卡片样式 */
         .step-card {
-            background: rgba(12, 12, 12, 0.9);
-            border: 1px solid var(--line-color);
-            border-radius: 0;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
             padding: 2rem;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
-        }
-        
-        /* 角落装饰点 */
-        .step-card::before {
-            content: '';
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            width: 4px;
-            height: 4px;
-            background: var(--dot-color);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-        
-        .step-card::after {
-            content: '';
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 4px;
-            height: 4px;
-            background: var(--dot-color);
-            border-radius: 50%;
-            transition: all 0.3s ease;
+            overflow: hidden;
         }
         
         .step-card:hover {
-            border-color: var(--line-color-hover);
+            border-color: rgba(0, 204, 80, 0.4);
+            box-shadow: 0 0 0 1px rgba(0, 204, 80, 0.2);
         }
         
-        .step-card:hover::before,
-        .step-card:hover::after {
-            background: var(--primary);
+        .step-card img {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .step-card:hover img {
+            transform: scale(1.03);
         }
 
         .number-badge {
@@ -1222,44 +1567,30 @@
             opacity: 0.5;
         }
 
-        /* Roles 卡片样式 - NEVERHACK风格 */
+        /* Roles 卡片样式 */
         .role-card {
-            background: rgba(12, 12, 12, 0.9);
-            border: 1px solid var(--line-color);
-            border-radius: 0;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
             padding: 1.5rem;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             cursor: pointer;
         }
         
-        .role-card::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 4px;
-            height: 4px;
-            background: var(--dot-color);
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-        
         .role-card:hover {
-            background: rgba(0, 191, 75, 0.08);
-            box-shadow: inset 0 0 0 1px var(--primary), 0 0 30px rgba(0, 191, 75, 0.1);
-        }
-        
-        .role-card:hover::before {
-            background: var(--primary);
+            background: rgba(30, 30, 30, 0.9);
+            border-color: rgba(0, 204, 80, 0.3);
         }
         
         .role-icon {
             width: 48px;
             height: 48px;
-            background: transparent;
-            border: 1px solid var(--line-color);
-            border-radius: 0;
+            background: rgba(0, 191, 75, 0.1);
+            border: none;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1272,8 +1603,7 @@
         }
         
         .role-card:hover .role-icon {
-            border-color: var(--primary);
-            background: rgba(0, 191, 75, 0.1);
+            background: rgba(0, 191, 75, 0.2);
         }
 
         /* 磁性吸附效果 */
@@ -1624,20 +1954,9 @@
         <div class="loader-line"></div>
     </div>
 
-    <!-- ===== 全局结构线 ===== -->
-    <div class="global-lines">
-        <!-- 垂直线 -->
-        <div class="v-line v-line-1"></div>
-        <div class="v-line v-line-3"></div>
-        <!-- 顶部角落点 -->
-        <div class="corner-dot top-left"></div>
-        <div class="corner-dot top-right"></div>
-    </div>
 
     <!-- Header -->
     <header id="mainHeader" class="fixed top-0 left-0 right-0 z-50 header-transparent">
-        <!-- 导航底部线 - 始终显示 -->
-        <div class="header-line absolute bottom-0 left-0 right-0 h-[1px]" style="background: rgba(255,255,255,0.12);"></div>
         <div class="mx-auto w-full px-6 md:px-10">
             <nav class="w-full relative" style="height: 72px; display: flex; align-items: center; justify-content: space-between;">
                 <div class="flex items-center flex-shrink-0">
@@ -1662,63 +1981,116 @@
         </div>
     </header>
 
+    <!-- 无限画布动态背景 -->
+    <div class="canvas-bg"></div>
+    
+    <!-- 无限画布抽象背景 -->
+    <div class="canvas-infinite-bg">
+        <!-- 无限延伸线条 -->
+        <div class="infinite-line infinite-line-h" style="top: 20%; animation-delay: 0.5s;"></div>
+        <div class="infinite-line infinite-line-h" style="top: 40%; animation-delay: 0.7s;"></div>
+        <div class="infinite-line infinite-line-h" style="top: 60%; animation-delay: 0.9s;"></div>
+        <div class="infinite-line infinite-line-h" style="top: 80%; animation-delay: 1.1s;"></div>
+        
+        <div class="infinite-line infinite-line-v" style="left: 15%; animation-delay: 0.6s;"></div>
+        <div class="infinite-line infinite-line-v" style="left: 35%; animation-delay: 0.8s;"></div>
+        <div class="infinite-line infinite-line-v" style="left: 65%; animation-delay: 1.0s;"></div>
+        <div class="infinite-line infinite-line-v" style="left: 85%; animation-delay: 1.2s;"></div>
+        
+        <!-- 边缘渐隐 -->
+        <div class="canvas-fade-edge canvas-fade-top"></div>
+        <div class="canvas-fade-edge canvas-fade-bottom"></div>
+        <div class="canvas-fade-edge canvas-fade-left"></div>
+        <div class="canvas-fade-edge canvas-fade-right"></div>
+        
+        <!-- 角落标记 -->
+        <div class="canvas-corner canvas-corner-tl"></div>
+        <div class="canvas-corner canvas-corner-tr"></div>
+        <div class="canvas-corner canvas-corner-bl"></div>
+        <div class="canvas-corner canvas-corner-br"></div>
+        
+        <!-- 中心十字 -->
+        <div class="canvas-crosshair"></div>
+        
+        <!-- 右上角迷你地图 -->
+        <div class="canvas-minimap">
+            <div class="minimap-viewport"></div>
+            <div class="minimap-dot" style="left: 20%; top: 30%;"></div>
+            <div class="minimap-dot" style="left: 70%; top: 25%;"></div>
+            <div class="minimap-dot" style="left: 25%; top: 65%;"></div>
+            <div class="minimap-dot" style="left: 65%; top: 70%;"></div>
+        </div>
+        
+        <!-- 左下角缩放控制 -->
+        <div class="canvas-zoom-control">
+            <svg class="zoom-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <span class="zoom-level" data-level="80">80%</span>
+            <span class="zoom-level active" data-level="100">100%</span>
+            <span class="zoom-level" data-level="120">120%</span>
+        </div>
+        
+        <!-- 边缘刻度 -->
+        <div class="canvas-tick" style="left: 20%; top: 58px; animation-delay: 2s;"></div>
+        <div class="canvas-tick" style="left: 40%; top: 58px; animation-delay: 2.1s;"></div>
+        <div class="canvas-tick" style="left: 60%; top: 58px; animation-delay: 2.2s;"></div>
+        <div class="canvas-tick" style="left: 80%; top: 58px; animation-delay: 2.3s;"></div>
+        
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 25%; animation-delay: 2.1s;"></div>
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 45%; animation-delay: 2.2s;"></div>
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 65%; animation-delay: 2.3s;"></div>
+        <div class="canvas-tick canvas-tick-v" style="left: 58px; top: 85%; animation-delay: 2.4s;"></div>
+    </div>
+
     <!-- Hero Section -->
-    <section class="relative flex flex-col items-center px-6" style="z-index: 2; padding-top: 160px; padding-bottom: 80px;" id="heroSection">
+    <section class="relative flex flex-col items-center px-6" style="z-index: 2; padding-top: 120px; padding-bottom: 80px; min-height: 100vh;" id="heroSection">
         
-        <!-- AuthKit 风格背景 -->
-        <div class="hero-authkit-bg">
-            <!-- 绿色环境光 -->
-            <div class="ambient-glow"></div>
-            <!-- 细线网格 -->
-            <div class="grid-lines"></div>
+        <!-- What's New 标签 - 顶部居中 -->
+        <div class="whats-new-tag" style="margin-bottom: 40px;">
+            <span class="tag-icon">🔥</span>
+            <span class="tag-text">What's New: Copy to Figma now LIVE!</span>
+            <a href="#" class="tag-link">Try it out →</a>
         </div>
         
-        <!-- 文字区域 -->
-        <div class="hero-text-container reveal">
-            <div class="whats-new-tag">
-                <span class="tag-icon">🔥</span>
-                <span class="tag-text">What's New: Copy to Figma now LIVE!</span>
-                <a href="#" class="tag-link">Try it out →</a>
-            </div>
-            <h1 class="hero-title" data-text="The Visual Coding Agent"><span class="cursor"></span></h1>
+        <!-- Hero 画布容器 -->
+        <div class="hero-canvas-layout">
             
-            <p class="hero-subtitle">
-                Vibe coding tools make apps. The Visual Coding Agent builds real apps.
-            </p>
-            
-            <div class="hero-buttons">
-                <button class="hero-btn-primary">Start building now</button>
-                <button class="hero-btn-secondary">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
-                    Watch a video
-                </button>
+            <!-- 左上 - DEFINE 卡片 -->
+            <div class="hero-card hero-card-define">
+                <img src="images/hero-define.webp" alt="Define - Product Charter" class="hero-card-img">
             </div>
-        </div>
-        
-        <!-- Infinite Canvas 展示区 -->
-        <div class="hero-canvas-container reveal" style="transition-delay: 0.4s; margin-top: 80px;">
-            <!-- Canvas 背景图 -->
-            <div class="canvas-wrapper">
-                <img src="images/画布.webp" alt="Infinite Canvas" class="canvas-bg" style="width: 1100px;">
+            
+            <!-- 右上 - DEVELOP 卡片 -->
+            <div class="hero-card hero-card-develop">
+                <img src="images/hero-develop.png.webp" alt="Develop - SQL Code" class="hero-card-img">
+            </div>
+            
+            <!-- 左下 - DESIGN 卡片 -->
+            <div class="hero-card hero-card-design">
+                <img src="images/hero-design.pn.webp" alt="Design - Typography" class="hero-card-img">
+            </div>
+            
+            <!-- 右下 - APP 截图 -->
+            <div class="hero-card hero-card-app">
+                <img src="images/hero-app.webp" alt="App Preview" class="hero-card-img">
+            </div>
+            
+            <!-- 中间文字区域 -->
+            <div class="hero-center-content">
+                <h1 class="hero-title" data-text="The Visual Coding Agent"><span class="cursor"></span></h1>
                 
-                <!-- 浮动卡片 1 - 提示卡片 -->
-                <div class="floating-card-wrapper" style="left: -20px; top: 80px; width: 345px;">
-                    <img src="images/1.webp" alt="Prompt Card" class="floating-card" style="width: 100%; height: auto;">
-                </div>
+                <p class="hero-subtitle">
+                    Vibe coding tools make apps. The Visual Coding Agent builds real apps.
+                </p>
                 
-                <!-- 浮动卡片 2 - Conditional 流程卡片 -->
-                <div class="floating-card-wrapper" style="left: 200px; top: 240px; width: 213px;">
-                    <img src="images/2.webp" alt="Conditional Card" class="floating-card" style="width: 100%; height: auto;">
-                </div>
-                
-                <!-- 浮动卡片 3 - Develop 代码卡片 -->
-                <div class="floating-card-wrapper" style="left: 660px; top: -42px; width: 227px;">
-                    <img src="images/3.webp" alt="Develop Card" class="floating-card" style="width: 100%; height: auto;">
-                </div>
-                
-                <!-- 浮动卡片 4 - 数据仪表板卡片 -->
-                <div class="floating-card-wrapper" style="left: 540px; top: 240px; width: 373px;">
-                    <img src="images/4.webp" alt="Dashboard Card" class="floating-card" style="width: 100%; height: auto;">
+                <div class="hero-buttons">
+                    <button class="hero-btn-primary">Start building now</button>
+                    <button class="hero-btn-secondary">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                        Watch a video
+                    </button>
                 </div>
             </div>
         </div>
@@ -1735,15 +2107,6 @@
         </div>
         
         <div class="sticky-container">
-            <!-- Usecase 内部结构线 -->
-            <div class="usecase-frame">
-                <div class="h-line top"></div>
-                <div class="dot tl"></div>
-                <div class="dot tr"></div>
-                <div class="dot bl"></div>
-                <div class="dot br"></div>
-                <div class="h-line bottom"></div>
-            </div>
             <!-- Content 1 -->
             <div class="view-item active">
                 <div class="layout-grid">
@@ -2019,8 +2382,6 @@
         </div>
     </section>
     
-    <div class="section-divider"></div>
-
     <!-- Steps Section -->
     <section class="relative" style="padding: 128px 5%; z-index: 2;" id="stepsSection">
         
@@ -2041,42 +2402,31 @@
                 Organize your ideas in order, design beautifully, and turn them into production apps.
             </p>
             
-            <div class="grid md:grid-cols-3 gap-0 stagger-reveal" style="border: 1px solid var(--line-color);">
+            <div class="grid md:grid-cols-3 gap-4 stagger-reveal">
                 <!-- Step 01 -->
-                <div class="step-card reveal-scale" style="transition-delay: 0.1s; border-right: 1px solid var(--line-color);">
+                <div class="step-card reveal-scale" style="transition-delay: 0.1s;">
                     <div class="space-y-4">
                         <div class="number-badge">01</div>
                         <h3 class="text-xl mb-2">Define with Logic</h3>
                         <p class="text-gray-500 leading-relaxed font-light text-sm">
                                 Think & Plan. Create PRDs and User Flows that act as the logical backbone.
                             </p>
-                        <div class="mt-6 bg-black/60 p-6 flex items-center justify-center border border-white/5" style="aspect-ratio: 1/1;">
-                                <div class="text-center">
-                                <div class="text-green-400 text-sm mb-3 font-mono">PRD</div>
-                                <div class="flex gap-3 justify-center">
-                                    <div class="w-1.5 h-1.5 bg-green-400/60 rounded-full animate-pulse"></div>
-                                    <div class="w-1.5 h-1.5 bg-green-400/40 rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
-                                    <div class="w-1.5 h-1.5 bg-green-400/60 rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
-                                </div>
-                            </div>
+                        <div class="mt-6 rounded-xl overflow-hidden">
+                            <img src="images/Steps 01.webp" alt="Define with Logic" style="width: 100%; height: auto; display: block;">
                         </div>
                     </div>
                 </div>
                 
                 <!-- Step 02 -->
-                <div class="step-card reveal-scale" style="transition-delay: 0.2s; border-right: 1px solid var(--line-color);">
+                <div class="step-card reveal-scale" style="transition-delay: 0.2s;">
                     <div class="space-y-4">
                         <div class="number-badge">02</div>
                         <h3 class="text-xl mb-2">Design like a Pro</h3>
                         <p class="text-gray-500 leading-relaxed font-light text-sm">
                             Generate high-taste UIs with an editable design that ensures consistency.
                         </p>
-                        <div class="mt-6 bg-black/60 p-6 flex items-center justify-center border border-white/5" style="aspect-ratio: 1/1;">
-                            <div class="w-full space-y-2">
-                                <div class="h-2 bg-gradient-to-r from-green-400/30 to-transparent"></div>
-                                <div class="h-2 bg-gradient-to-r from-green-400/20 to-transparent w-3/4"></div>
-                                <div class="h-2 bg-gradient-to-r from-green-400/30 to-transparent w-1/2"></div>
-                            </div>
+                        <div class="mt-6 rounded-xl overflow-hidden">
+                            <img src="images/Steps 02.webp" alt="Design like a Pro" style="width: 100%; height: auto; display: block;">
                         </div>
                     </div>
                 </div>
@@ -2089,21 +2439,14 @@
                         <p class="text-gray-500 leading-relaxed font-light text-sm">
                             Production-ready app instantly, databases and APIs ready to deploy.
                         </p>
-                        <div class="mt-6 bg-black/60 p-6 flex items-center justify-center border border-white/5" style="aspect-ratio: 1/1;">
-                            <div class="font-mono text-xs text-green-400/60">
-                                <div>&lt;App /&gt;</div>
-                                <div class="ml-4 text-green-400/40">├── API</div>
-                                <div class="ml-4 text-green-400/40">├── DB</div>
-                                <div class="ml-4 text-green-400/40">└── Deploy ✓</div>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mt-6 rounded-xl overflow-hidden">
+                            <img src="images/Steps 03.webp" alt="Develop to Real" style="width: 100%; height: auto; display: block;">
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
-
-    <div class="section-divider"></div>
 
     <!-- Roles Section -->
     <section class="relative" style="padding: 128px 5%; z-index: 2;" id="rolesSection">
@@ -2120,11 +2463,11 @@
             </h2>
             
             <!-- 6个卡片网格 - 上2下4布局 -->
-            <div class="stagger-reveal" style="border: 1px solid var(--line-color);">
+            <div class="stagger-reveal">
                 <!-- 第一行：2个卡片 -->
-                <div class="grid grid-cols-2 gap-0">
+                <div class="grid grid-cols-2 gap-4 mb-4">
                     <!-- Startup -->
-                    <div class="role-card" style="border-right: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);">
+                    <div class="role-card">
                         <div class="role-icon">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
@@ -2137,7 +2480,7 @@
                     </div>
                 
                     <!-- Design Studio -->
-                    <div class="role-card" style="border-bottom: 1px solid var(--line-color);">
+                    <div class="role-card">
                         <div class="role-icon">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
@@ -2151,9 +2494,9 @@
                 </div>
                 
                 <!-- 第二行：4个卡片 -->
-                <div class="grid grid-cols-4 gap-0">
+                <div class="grid grid-cols-4 gap-4">
                     <!-- PM -->
-                    <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                    <div class="role-card">
                         <div class="role-icon">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
@@ -2166,7 +2509,7 @@
                     </div>
                     
                     <!-- Product Designer -->
-                    <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                    <div class="role-card">
                         <div class="role-icon">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
@@ -2179,7 +2522,7 @@
                     </div>
                     
                     <!-- Engineer -->
-                    <div class="role-card" style="border-right: 1px solid var(--line-color);">
+                    <div class="role-card">
                         <div class="role-icon">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
@@ -2208,18 +2551,8 @@
         </div>
     </section>
 
-    <!-- Section Divider -->
-    <div class="section-divider"></div>
-
     <!-- CTA Section -->
     <section class="relative" style="padding: 128px 5%; z-index: 2;" id="ctaSection">
-        <!-- 结构框 -->
-        <div class="absolute inset-[5%] border border-white/5 pointer-events-none">
-            <div class="absolute top-0 left-0 w-3 h-3 border-l border-t border-white/20"></div>
-            <div class="absolute top-0 right-0 w-3 h-3 border-r border-t border-white/20"></div>
-            <div class="absolute bottom-0 left-0 w-3 h-3 border-l border-b border-white/20"></div>
-            <div class="absolute bottom-0 right-0 w-3 h-3 border-r border-b border-white/20"></div>
-        </div>
         
         <div class="max-w-4xl mx-auto text-center relative">
             <!-- Section 标签 -->
@@ -2242,10 +2575,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="relative" style="padding: 80px 5%; z-index: 2; border-top: 1px solid var(--line-color);">
-        <!-- 顶部角落点 -->
-        <div class="absolute top-0 left-[5%] w-1 h-1 bg-white/20 rounded-full transform -translate-y-1/2"></div>
-        <div class="absolute top-0 right-[5%] w-1 h-1 bg-white/20 rounded-full transform -translate-y-1/2"></div>
+    <footer class="relative" style="padding: 80px 5%; z-index: 2;">
         
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-4 gap-12 mb-12">
@@ -2318,46 +2648,50 @@
                 
                 // 触发 Hero 文字和卡片入场动画
                 const heroTextContainer = document.querySelector('.hero-text-container');
-                const heroCanvasContainer = document.querySelector('.hero-canvas-container');
+                const heroCanvasLayout = document.querySelector('.hero-canvas-layout');
                 const heroTitle = document.querySelector('.hero-title');
                 const cursor = heroTitle.querySelector('.cursor');
                 const text = heroTitle.getAttribute('data-text');
                 
-                // 逐字打字效果
-                let charIndex = 0;
-                const chars = [];
+                // 直接显示标题，带渐变效果
+                const words = text.split(' ');
+                heroTitle.innerHTML = '';
                 
-                function typeNextChar() {
-                    if (charIndex < text.length) {
-                        const char = text[charIndex];
-                        const span = document.createElement('span');
-                        span.className = 'char';
-                        span.textContent = char === ' ' ? '\u00A0' : char;
-                        span.style.transitionDelay = `${charIndex * 0.05}s`;
-                        heroTitle.insertBefore(span, cursor);
-                        chars.push(span);
-                        charIndex++;
-                        
-                        // 触发动画
-                        requestAnimationFrame(() => {
-                            span.style.opacity = '1';
-                            span.style.transform = 'translateY(0)';
-                        });
-                        
-                        setTimeout(typeNextChar, 60);
-                    } else {
-                        // 打字完成，隐藏光标
-                        setTimeout(() => {
-                            cursor.classList.add('hidden');
-                            // 触发画布和其他元素动画
-                            heroTextContainer.classList.add('active');
-                            heroCanvasContainer.classList.add('active');
-                        }, 300);
+                words.forEach((word, wordIndex) => {
+                    const wordSpan = document.createElement('span');
+                    wordSpan.className = 'word';
+                    wordSpan.style.opacity = '0';
+                    wordSpan.style.transform = 'translateY(20px)';
+                    wordSpan.style.display = 'inline-block';
+                    wordSpan.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    wordSpan.style.transitionDelay = `${wordIndex * 0.1}s`;
+                    
+                    if (word === 'Visual') {
+                        wordSpan.classList.add('gradient-text');
                     }
-                }
+                    
+                    wordSpan.textContent = word;
+                    heroTitle.appendChild(wordSpan);
+                    
+                    // 添加空格
+                    if (wordIndex < words.length - 1) {
+                        heroTitle.appendChild(document.createTextNode('\u00A0'));
+                    }
+                });
                 
-                // 开始打字
-                setTimeout(typeNextChar, 500);
+                // 触发动画
+                setTimeout(() => {
+                    heroTitle.querySelectorAll('.word').forEach(word => {
+                        word.style.opacity = '1';
+                        word.style.transform = 'translateY(0)';
+                    });
+                    
+                    // 触发画布和其他元素动画
+                    setTimeout(() => {
+                        if (heroTextContainer) heroTextContainer.classList.add('active');
+                        if (heroCanvasLayout) heroCanvasLayout.classList.add('active');
+                    }, 600);
+                }, 100);
             }, 1500);
         });
 
