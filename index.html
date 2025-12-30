@@ -396,40 +396,35 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 14px;
-            background: #000000;
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            background: transparent;
+            border: none;
             border-radius: 6px;
-            z-index: 99999;
+            z-index: 999999;
             opacity: 0;
             animation: uiReveal 0.8s ease 2.2s forwards;
-            font-size: 12px;
+            font-size: 11px;
             font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.25);
+            pointer-events: none;
         }
         
         .zoom-icon {
-            width: 14px;
-            height: 14px;
-            opacity: 0.5;
-            color: rgba(255, 255, 255, 0.6);
+            width: 12px;
+            height: 12px;
+            opacity: 0.3;
+            color: rgba(255, 255, 255, 0.3);
         }
         
         .zoom-level {
-            color: rgba(255, 255, 255, 0.4);
-            cursor: pointer;
-            padding: 2px 6px;
+            color: rgba(255, 255, 255, 0.2);
+            padding: 2px 4px;
             border-radius: 3px;
-            transition: all 0.2s ease;
-        }
-        
-        .zoom-level:hover {
-            color: rgba(255, 255, 255, 0.7);
         }
         
         .zoom-level.active {
-            color: #00CC50;
-            background: rgba(0, 204, 80, 0.1);
+            color: rgba(0, 204, 80, 0.4);
+            background: none;
         }
         
         @keyframes uiReveal {
@@ -466,9 +461,13 @@
         }
         
         .hero-card:hover .hero-card-img {
-            transform: scale(1.05) translateZ(20px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 204, 80, 0.2);
-            filter: drop-shadow(0 0 15px rgba(0, 204, 80, 0.3));
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 禁用 VanillaTilt 的 glare 效果背景问题 */
+        .hero-card .js-tilt-glare {
+            display: none !important;
         }
         
         
@@ -601,17 +600,29 @@
             stroke: #00CC50;
             stroke-width: 2;
             stroke-linecap: round;
-            stroke-dasharray: 120 1500;  /* 120px短线 + 长间隔覆盖整条路径 */
+            stroke-dasharray: 150 5000;  /* 150px短线 + 长间隔覆盖完整闭环 */
             opacity: 1;
             filter: drop-shadow(0 0 6px rgba(0, 204, 80, 0.8)) drop-shadow(0 0 12px rgba(0, 204, 80, 0.4));
-            animation: flowFullPath 5s linear infinite;
+            animation: flowFullPath 10s linear infinite;
             animation-delay: 0s;
         }
         
-        /* 沿完整路径从头跑到尾 - 5秒循环，匀速流动 */
+        /* 沿完整闭环路径无限循环 - 10秒一圈 */
         @keyframes flowFullPath {
-            0% { stroke-dashoffset: 1500; }
-            100% { stroke-dashoffset: -120; }
+            0% { stroke-dashoffset: 5000; }
+            100% { stroke-dashoffset: -150; }
+        }
+        
+        /* 对角线动画 - Define → App */
+        .flow-line-diagonal {
+            stroke-dasharray: 100 800;
+            animation: flowDiagonal 4s linear infinite;
+            animation-delay: 2s;
+        }
+        
+        @keyframes flowDiagonal {
+            0% { stroke-dashoffset: 800; }
+            100% { stroke-dashoffset: -100; }
         }
 
         /* ===== What's New 标签 ===== */
@@ -680,12 +691,10 @@
         }
         
         .hero-title .gradient-text {
-            background: linear-gradient(135deg, #00CC50 0%, #00FF88 50%, #00CC50 100%);
+            background: linear-gradient(135deg, #00CC50 48%, #A6FF42 99%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            background-size: 200% 200%;
-            animation: gradientShift 3s ease infinite;
         }
         
         @keyframes gradientShift {
@@ -1798,6 +1807,197 @@
             }
         }
         
+        /* ===== 小屏幕响应式 ===== */
+        @media (max-width: 1024px) {
+            /* Usecase 区域 - 平板 */
+            .layout-grid {
+                grid-template-columns: 1fr !important;
+                width: calc(100% - 80px) !important;
+                margin: 0 40px !important;
+                gap: 40px !important;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .text-content {
+                text-align: center;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .text-content .index-tag {
+                justify-content: center;
+            }
+            .text-content h2 {
+                font-size: 2.5rem;
+            }
+            .text-content p {
+                max-width: 100%;
+            }
+            .side-dots {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            /* Hero 区域 */
+            .hero-title {
+                font-size: 2rem !important;
+                white-space: normal !important;
+            }
+            .hero-subtitle {
+                font-size: 0.95rem;
+                padding: 0 1rem;
+            }
+            .hero-canvas-layout {
+                min-height: 350px;
+            }
+            .hero-center-content {
+                padding: 0 1rem;
+            }
+            .hero-button {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .hero-btn-primary, .hero-btn-secondary {
+                padding: 12px 24px;
+                font-size: 14px;
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            /* Usecase 区域 */
+            .layout-grid {
+                width: calc(100% - 40px) !important;
+                margin: 0 20px !important;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .text-content h2 {
+                font-size: 2rem;
+            }
+            .app-card .card-content h3 {
+                font-size: 14px;
+            }
+            .app-card .card-desc {
+                font-size: 12px;
+            }
+            
+            /* Steps 区域 */
+            .step-card {
+                padding: 1.25rem;
+            }
+            .step-card h3 {
+                font-size: 1.1rem;
+            }
+            .step-card p {
+                font-size: 0.9rem;
+            }
+            
+            /* Roles 区域 */
+            .role-card {
+                padding: 1.25rem;
+            }
+            .role-card h3 {
+                font-size: 1rem;
+            }
+            .role-card p {
+                font-size: 0.85rem;
+            }
+            
+            /* CTA 区域 */
+            #ctaSection h2 {
+                font-size: 1.75rem !important;
+                line-height: 1.3;
+            }
+            #ctaSection .glow-button {
+                height: 44px !important;
+                padding-left: 24px !important;
+                padding-right: 24px !important;
+                font-size: 14px;
+            }
+            
+            /* Footer */
+            footer .grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+            
+            /* 隐藏装饰元素 */
+            .canvas-zoom-control,
+            .canvas-minimap,
+            .canvas-tick,
+            .infinite-line {
+                display: none;
+            }
+            
+            /* 通用间距调整 */
+            section {
+                padding-left: 5% !important;
+                padding-right: 5% !important;
+            }
+            
+            /* 标题不截断 */
+            h2, h3 {
+                word-break: normal;
+                overflow-wrap: break-word;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* 更小屏幕 */
+            .hero-title {
+                font-size: 1.75rem !important;
+            }
+            .hero-subtitle {
+                font-size: 0.875rem;
+            }
+            
+            /* 导航栏 */
+            #mainHeader nav {
+                height: 60px !important;
+            }
+            #mainHeader .nav-link.text-sm.font-medium {
+                display: none;
+            }
+            #mainHeader button {
+                padding: 8px 16px !important;
+                font-size: 13px !important;
+            }
+            
+            /* Usecase */
+            .text-content h2 {
+                font-size: 1.5rem;
+            }
+            .layout-grid {
+                width: calc(100% - 32px) !important;
+                margin: 0 16px !important;
+            }
+            
+            /* Steps */
+            .step-card .number-badge {
+                font-size: 12px;
+            }
+            
+            /* Roles 区域 - 超小屏幕单列 */
+            #rolesSection .grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            /* Footer 单列 */
+            footer .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* CTA */
+            #ctaSection h2 {
+                font-size: 1.5rem !important;
+            }
+            #ctaSection {
+                padding: 80px 5% !important;
+            }
+        }
+        
         /* 序号指示器 */
         .view-counter {
             position: absolute;
@@ -2153,7 +2353,7 @@
             
             <!-- Flora 风格流动线条 -->
             <div class="flow-lines-container" id="flowLinesContainer">
-                <svg class="flow-lines-svg" viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid meet">
+                <svg class="flow-lines-svg" viewBox="-100 -80 1400 700" preserveAspectRatio="xMidYMid meet">
                     <defs>
                         <!-- 绿色发光滤镜 -->
                         <filter id="glowFilter" x="-100%" y="-100%" width="300%" height="300%">
@@ -2175,34 +2375,23 @@
                         </linearGradient>
                     </defs>
                     
-                    <!-- 路径：Define底部 → Design顶部 → Design右边 → Develop左边 → Develop底部 → App顶部 -->
-                    <!-- 起点紧贴 Define 卡片底部边缘 (x往左移120px) -->
+                    <!-- 平滑曲线路径 - 完整闭环（使用原始设计路径） -->
                     <path class="flow-path-base" 
-                        d="M 120 320
-                           C 60 420, 180 520, 380 560
-                           C 480 600, 580 590, 680 510
-                           C 780 430, 880 280, 970 180
-                           C 1020 130, 1080 120, 1120 160
-                           C 1180 220, 1180 380, 1120 500
-                           C 1080 580, 1050 560, 1030 540" />
-                    <path class="flow-path-draw path-1" 
-                        d="M 120 320
-                           C 60 420, 180 520, 380 560
-                           C 480 600, 580 590, 680 510
-                           C 780 430, 880 280, 970 180
-                           C 1020 130, 1080 120, 1120 160
-                           C 1180 220, 1180 380, 1120 500
-                           C 1080 580, 1050 560, 1030 540" />
+                        d="M2.07 86.04 Q0.99 98.16 0.66 111.05 Q0.30 124.57 0.76 138.47 Q1.75 168.64 6.47 198.28 Q11.69 231.07 21.14 261.05 Q31.54 294.05 46.68 322.32 Q63.22 353.22 85.01 377.67 Q108.64 404.19 138.05 422.68 Q169.73 442.59 207.75 452.93 Q248.46 464 296.07 464 Q326.81 464 355.20 458.54 Q382.22 453.34 407.40 443.14 Q431.18 433.5 453.66 419.25 Q474.64 405.95 494.94 388.33 Q513.55 372.18 532.20 351.83 Q548.80 333.73 566.40 311.22 Q581.05 292.48 598.50 267.94 Q605.49 258.11 614.06 245.76 Q619.37 238.11 629.45 223.47 Q639.06 209.51 644.07 202.30 Q652.20 190.58 658.75 181.34 Q675.14 158.22 688.71 140.72 Q705.00 119.69 720.16 102.87 Q737.17 84.00 753.95 69.04 Q772.21 52.79 790.91 40.53 Q810.90 27.42 831.87 18.58 Q854.03 9.23 877.65 4.48 Q902.40 -0.50 929.07 -0.50 Q948.78 -0.50 966.82 4.27 Q985.78 9.29 1002.17 19.39 Q1019.44 30.04 1033.34 46.03 Q1048 62.89 1058.57 85.34 Q1069.73 109.01 1076.14 138.48 Q1082.90 169.54 1084.32 206.62 Q1085.8 245.61 1081.37 290.93 Q1076.72 338.42 1065.56 392.60 L1064.58 392.40 Q1075.73 338.27 1080.37 290.83 Q1084.80 245.58 1083.32 206.65 Q1081.91 169.66 1075.17 138.69 Q1068.78 109.33 1057.67 85.76 Q1047.16 63.45 1032.58 46.68 Q1018.78 30.81 1001.64 20.24 Q985.38 10.22 966.57 5.24 Q948.65 0.50 929.07 0.50 Q902.50 0.50 877.85 5.46 Q854.32 10.19 832.26 19.50 Q811.37 28.31 791.46 41.36 Q772.82 53.58 754.62 69.79 Q737.88 84.71 720.91 103.53 Q705.77 120.33 689.50 141.33 Q675.94 158.82 659.56 181.92 Q653.02 191.15 644.89 202.87 Q639.89 210.08 630.28 224.04 Q620.19 238.69 614.88 246.33 Q606.31 258.69 599.31 268.52 Q581.85 293.08 567.19 311.83 Q549.56 334.38 532.94 352.51 Q514.25 372.90 495.59 389.09 Q475.24 406.76 454.19 420.10 Q431.64 434.40 407.78 444.07 Q382.51 454.31 355.39 459.52 Q326.90 465 296.07 465 Q248.33 465 207.49 453.89 Q169.33 443.51 137.52 423.52 Q107.99 404.96 84.26 378.34 Q62.39 353.80 45.79 322.79 Q30.61 294.44 20.18 261.35 Q10.71 231.30 5.48 198.44 Q0.76 168.73 -0.24 138.50 Q-0.70 124.57 -0.34 111.03 Q-0.001 98.10 1.07 85.96 L2.07 86.04 Z" 
+                        transform="translate(-30, 30) scale(1.15)" />
                     
-                    <!-- 绿色短线流动效果（沿完整路径跑动） -->
+                    <!-- 绿色短线流动效果 - 完整闭环 -->
                     <path class="flow-line-glow" 
-                        d="M 120 320
-                           C 60 420, 180 520, 380 560
-                           C 480 600, 580 590, 680 510
-                           C 780 430, 880 280, 970 180
-                           C 1020 130, 1080 120, 1120 160
-                           C 1180 220, 1180 380, 1120 500
-                           C 1080 580, 1050 560, 1030 540" />
+                        d="M2.07 86.04 Q0.99 98.16 0.66 111.05 Q0.30 124.57 0.76 138.47 Q1.75 168.64 6.47 198.28 Q11.69 231.07 21.14 261.05 Q31.54 294.05 46.68 322.32 Q63.22 353.22 85.01 377.67 Q108.64 404.19 138.05 422.68 Q169.73 442.59 207.75 452.93 Q248.46 464 296.07 464 Q326.81 464 355.20 458.54 Q382.22 453.34 407.40 443.14 Q431.18 433.5 453.66 419.25 Q474.64 405.95 494.94 388.33 Q513.55 372.18 532.20 351.83 Q548.80 333.73 566.40 311.22 Q581.05 292.48 598.50 267.94 Q605.49 258.11 614.06 245.76 Q619.37 238.11 629.45 223.47 Q639.06 209.51 644.07 202.30 Q652.20 190.58 658.75 181.34 Q675.14 158.22 688.71 140.72 Q705.00 119.69 720.16 102.87 Q737.17 84.00 753.95 69.04 Q772.21 52.79 790.91 40.53 Q810.90 27.42 831.87 18.58 Q854.03 9.23 877.65 4.48 Q902.40 -0.50 929.07 -0.50 Q948.78 -0.50 966.82 4.27 Q985.78 9.29 1002.17 19.39 Q1019.44 30.04 1033.34 46.03 Q1048 62.89 1058.57 85.34 Q1069.73 109.01 1076.14 138.48 Q1082.90 169.54 1084.32 206.62 Q1085.8 245.61 1081.37 290.93 Q1076.72 338.42 1065.56 392.60 L1064.58 392.40 Q1075.73 338.27 1080.37 290.83 Q1084.80 245.58 1083.32 206.65 Q1081.91 169.66 1075.17 138.69 Q1068.78 109.33 1057.67 85.76 Q1047.16 63.45 1032.58 46.68 Q1018.78 30.81 1001.64 20.24 Q985.38 10.22 966.57 5.24 Q948.65 0.50 929.07 0.50 Q902.50 0.50 877.85 5.46 Q854.32 10.19 832.26 19.50 Q811.37 28.31 791.46 41.36 Q772.82 53.58 754.62 69.79 Q737.88 84.71 720.91 103.53 Q705.77 120.33 689.50 141.33 Q675.94 158.82 659.56 181.92 Q653.02 191.15 644.89 202.87 Q639.89 210.08 630.28 224.04 Q620.19 238.69 614.88 246.33 Q606.31 258.69 599.31 268.52 Q581.85 293.08 567.19 311.83 Q549.56 334.38 532.94 352.51 Q514.25 372.90 495.59 389.09 Q475.24 406.76 454.19 420.10 Q431.64 434.40 407.78 444.07 Q382.51 454.31 355.39 459.52 Q326.90 465 296.07 465 Q248.33 465 207.49 453.89 Q169.33 443.51 137.52 423.52 Q107.99 404.96 84.26 378.34 Q62.39 353.80 45.79 322.79 Q30.61 294.44 20.18 261.35 Q10.71 231.30 5.48 198.44 Q0.76 168.73 -0.24 138.50 Q-0.70 124.57 -0.34 111.03 Q-0.001 98.10 1.07 85.96 L2.07 86.04 Z" 
+                        transform="translate(-30, 30) scale(1.15)" />
+                    
+                    <!-- 对角线：Define → App（穿过中间） -->
+                    <path class="flow-path-base" 
+                        d="M 180 280 Q 400 350, 550 400 Q 700 450, 900 480" 
+                        transform="translate(-30, 30) scale(1.15)" />
+                    <path class="flow-line-glow flow-line-diagonal" 
+                        d="M 180 280 Q 400 350, 550 400 Q 700 450, 900 480" 
+                        transform="translate(-30, 30) scale(1.15)" />
                 </svg>
             </div>
             
@@ -2586,7 +2775,7 @@
             <!-- 6个卡片网格 - 上2下4布局 -->
             <div class="stagger-reveal">
                 <!-- 第一行：2个卡片 -->
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <!-- Startup -->
                     <div class="role-card">
                         <div class="role-icon">
@@ -2611,7 +2800,7 @@
                 </div>
                 
                 <!-- 第二行：4个卡片 -->
-                <div class="grid grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- PM -->
                     <div class="role-card">
                         <div class="role-icon">
