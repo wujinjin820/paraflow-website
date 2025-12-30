@@ -3374,7 +3374,7 @@
                     baseX: Math.sin(phi) * Math.cos(theta),
                     baseY: Math.sin(phi) * Math.sin(theta),
                     baseZ: Math.cos(phi),
-                    size: 2,
+                    size: 1.2,
                 });
             }
             
@@ -3410,7 +3410,7 @@
                 
                 ctx.clearRect(0, 0, size, size);
                 
-                rotationY += 0.003;
+                rotationY += 0.008;
                 
                 const cosY = Math.cos(rotationY);
                 const sinY = Math.sin(rotationY);
