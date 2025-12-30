@@ -32,7 +32,7 @@
             position: fixed;
             inset: 0;
             z-index: 0;
-            background-image: radial-gradient(circle, #333333 1.25px, transparent 1.25px);
+            background-image: radial-gradient(circle, rgba(0, 204, 80, 0.25) 1.25px, transparent 1.25px);
             background-size: 20px 20px;
             pointer-events: none;
         }
@@ -142,7 +142,7 @@
             background: #00BF4B;
             box-shadow: 0 0 20px rgba(0, 191, 75, 0.3);
             transition: all 0.3s ease;
-            border-radius: 12px;
+            border-radius: 64px;
             color: #ffffff;
             font-weight: 600;
         }
@@ -443,6 +443,9 @@
             transform: translateY(30px);
             transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: visible;
+            z-index: 10; /* 确保卡片在线条上方 */
+            transform-style: preserve-3d;
+            cursor: pointer;
         }
         
         .hero-canvas-layout.active .hero-card {
@@ -455,6 +458,17 @@
             height: auto;
             display: block;
             border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+        }
+        
+        .hero-card:hover {
+            z-index: 100;
+        }
+        
+        .hero-card:hover .hero-card-img {
+            transform: scale(1.05) translateZ(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 204, 80, 0.2);
+            filter: drop-shadow(0 0 15px rgba(0, 204, 80, 0.3));
         }
         
         
@@ -501,7 +515,7 @@
             flex-direction: column;
             align-items: center;
             gap: 24px;
-            z-index: 10;
+            z-index: 100; /* 确保标题在线条之上 */
             text-align: center;
             width: 1200px;
             max-width: 90vw;
@@ -543,6 +557,61 @@
         @media (max-width: 900px) {
             .hero-card { display: none; }
             .hero-canvas-layout { min-height: 500px; }
+            .flow-lines-container { display: none; }
+        }
+
+        /* ===== Flora 风格流动线条（完全复刻） ===== */
+        .flow-lines-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1; /* 在卡片下方 */
+            overflow: visible;
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+        
+        .flow-lines-container.active {
+            opacity: 1;
+        }
+        
+        .flow-lines-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+        
+        /* Flora 风格：灰色线条 - 始终完整显示，更明显 */
+        .flow-path-base {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.25);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        /* 隐藏 draw 路径，只用 base */
+        .flow-path-draw {
+            display: none;
+        }
+        
+        /* Flora 风格：绿色短线流动效果 - 80px绿色短线 */
+        .flow-line-glow {
+            fill: none;
+            stroke: #00CC50;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 120 1500;  /* 120px短线 + 长间隔覆盖整条路径 */
+            opacity: 1;
+            filter: drop-shadow(0 0 6px rgba(0, 204, 80, 0.8)) drop-shadow(0 0 12px rgba(0, 204, 80, 0.4));
+            animation: flowFullPath 5s linear infinite;
+            animation-delay: 0s;
+        }
+        
+        /* 沿完整路径从头跑到尾 - 5秒循环，匀速流动 */
+        @keyframes flowFullPath {
+            0% { stroke-dashoffset: 1500; }
+            100% { stroke-dashoffset: -120; }
         }
 
         /* ===== What's New 标签 ===== */
@@ -714,6 +783,8 @@
         
         .hero-btn-secondary {
             background: rgba(50, 59, 54, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: #FFFFFF;
             font-size: 16px;
             font-weight: 500;
@@ -1314,10 +1385,10 @@
         }
         
         .app-card {
-            background: rgba(20, 20, 20, 0.8);
+            background: rgba(10, 15, 12, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
             padding: 0;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1329,8 +1400,9 @@
         }
         
         .app-card:hover {
-            background: rgba(30, 30, 30, 0.9);
-            border-color: rgba(0, 204, 80, 0.3);
+            background: linear-gradient(315deg, rgba(0, 204, 80, 0.15) 0%, rgba(0, 204, 80, 0.05) 50%, rgba(10, 15, 12, 0.9) 100%);
+            border-color: rgba(0, 204, 80, 0.4);
+            box-shadow: 0 0 30px rgba(0, 204, 80, 0.1), inset 0 0 20px rgba(0, 204, 80, 0.05);
             transform: translateY(-4px);
         }
 
@@ -1347,6 +1419,33 @@
             display: flex;
             flex-direction: column;
             padding: 12px;
+        }
+        
+        /* 灰度蒙层 - 默认灰色，hover恢复彩色 */
+        .card-preview::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .card-preview img {
+            filter: grayscale(100%) brightness(0.7);
+            transition: filter 0.4s ease;
+        }
+        
+        .app-card:hover .card-preview::after {
+            background: rgba(0, 0, 0, 0);
+        }
+        
+        .app-card:hover .card-preview img {
+            filter: grayscale(0%) brightness(1);
         }
         
         .app-card:hover .card-preview {
@@ -1527,10 +1626,10 @@
 
         /* Steps 卡片样式 */
         .step-card {
-            background: rgba(20, 20, 20, 0.8);
+            background: rgba(10, 15, 12, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
             padding: 2rem;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1539,16 +1638,19 @@
         }
         
         .step-card:hover {
+            background: linear-gradient(315deg, rgba(0, 204, 80, 0.15) 0%, rgba(0, 204, 80, 0.05) 50%, rgba(10, 15, 12, 0.9) 100%);
             border-color: rgba(0, 204, 80, 0.4);
-            box-shadow: 0 0 0 1px rgba(0, 204, 80, 0.2);
+            box-shadow: 0 0 30px rgba(0, 204, 80, 0.1), inset 0 0 20px rgba(0, 204, 80, 0.05);
         }
         
         .step-card img {
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: grayscale(100%) brightness(0.7);
         }
         
         .step-card:hover img {
             transform: scale(1.03);
+            filter: grayscale(0%) brightness(1) sepia(20%) hue-rotate(80deg) saturate(1.2);
         }
 
         .number-badge {
@@ -1569,10 +1671,10 @@
 
         /* Roles 卡片样式 */
         .role-card {
-            background: rgba(20, 20, 20, 0.8);
+            background: rgba(10, 15, 12, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 16px;
             padding: 1.5rem;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1581,29 +1683,21 @@
         }
         
         .role-card:hover {
-            background: rgba(30, 30, 30, 0.9);
-            border-color: rgba(0, 204, 80, 0.3);
+            background: linear-gradient(315deg, rgba(0, 204, 80, 0.15) 0%, rgba(0, 204, 80, 0.05) 50%, rgba(10, 15, 12, 0.9) 100%);
+            border-color: rgba(0, 204, 80, 0.4);
+            box-shadow: 0 0 30px rgba(0, 204, 80, 0.1), inset 0 0 20px rgba(0, 204, 80, 0.05);
         }
         
         .role-icon {
             width: 48px;
             height: 48px;
-            background: rgba(0, 191, 75, 0.1);
-            border: none;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin-bottom: 1rem;
-            transition: all 0.4s ease;
         }
         
-        .role-icon svg {
-            color: var(--primary) !important;
-        }
-        
-        .role-card:hover .role-icon {
-            background: rgba(0, 191, 75, 0.2);
+        .role-icon img {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
         }
 
         /* 磁性吸附效果 */
@@ -2057,6 +2151,61 @@
         <!-- Hero 画布容器 -->
         <div class="hero-canvas-layout">
             
+            <!-- Flora 风格流动线条 -->
+            <div class="flow-lines-container" id="flowLinesContainer">
+                <svg class="flow-lines-svg" viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <!-- 绿色发光滤镜 -->
+                        <filter id="glowFilter" x="-100%" y="-100%" width="300%" height="300%">
+                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                        
+                        <!-- 绿色短线渐变 -->
+                        <linearGradient id="greenGlowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="transparent" />
+                            <stop offset="30%" stop-color="#00CC50" stop-opacity="0.8" />
+                            <stop offset="50%" stop-color="#00FF66" stop-opacity="1" />
+                            <stop offset="70%" stop-color="#00CC50" stop-opacity="0.8" />
+                            <stop offset="100%" stop-color="transparent" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- 路径：Define底部 → Design顶部 → Design右边 → Develop左边 → Develop底部 → App顶部 -->
+                    <!-- 起点紧贴 Define 卡片底部边缘 (x往左移120px) -->
+                    <path class="flow-path-base" 
+                        d="M 120 320
+                           C 60 420, 180 520, 380 560
+                           C 480 600, 580 590, 680 510
+                           C 780 430, 880 280, 970 180
+                           C 1020 130, 1080 120, 1120 160
+                           C 1180 220, 1180 380, 1120 500
+                           C 1080 580, 1050 560, 1030 540" />
+                    <path class="flow-path-draw path-1" 
+                        d="M 120 320
+                           C 60 420, 180 520, 380 560
+                           C 480 600, 580 590, 680 510
+                           C 780 430, 880 280, 970 180
+                           C 1020 130, 1080 120, 1120 160
+                           C 1180 220, 1180 380, 1120 500
+                           C 1080 580, 1050 560, 1030 540" />
+                    
+                    <!-- 绿色短线流动效果（沿完整路径跑动） -->
+                    <path class="flow-line-glow" 
+                        d="M 120 320
+                           C 60 420, 180 520, 380 560
+                           C 480 600, 580 590, 680 510
+                           C 780 430, 880 280, 970 180
+                           C 1020 130, 1080 120, 1120 160
+                           C 1180 220, 1180 380, 1120 500
+                           C 1080 580, 1050 560, 1030 540" />
+                </svg>
+            </div>
+            
             <!-- 左上 - DEFINE 卡片 -->
             <div class="hero-card hero-card-define">
                 <img src="images/hero-define.webp" alt="Define - Product Charter" class="hero-card-img">
@@ -2126,27 +2275,8 @@
                     </div>
                     <div class="cards-grid">
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;">
-                                <div class="preview-header">
-                                    <div class="preview-dot"></div>
-                                    <div class="preview-dot"></div>
-                                    <div class="preview-dot"></div>
-                                </div>
-                                <div class="preview-content">
-                                    <div class="preview-row" style="flex:1;">
-                                        <div class="preview-sidebar"></div>
-                                        <div class="preview-main">
-                                            <div class="preview-grid">
-                                                <div class="preview-grid-item"></div>
-                                                <div class="preview-grid-item"></div>
-                                                <div class="preview-grid-item"></div>
-                                                <div class="preview-grid-item"></div>
-                                                <div class="preview-grid-item"></div>
-                                                <div class="preview-grid-item"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/6821660433dfedd613c2d1ee_MA-Creatives-thumbnail.jpg" alt="Interactive Portfolio" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Interactive Portfolio</h3>
@@ -2155,20 +2285,8 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;">
-                                <div class="preview-header">
-                                    <div class="preview-dot"></div>
-                                    <div class="preview-dot"></div>
-                                    <div class="preview-dot"></div>
-                                </div>
-                                <div class="preview-content">
-                                    <div class="preview-chart"></div>
-                                    <div class="preview-row">
-                                        <div class="preview-card"></div>
-                                        <div class="preview-card accent"></div>
-                                        <div class="preview-card"></div>
-                                    </div>
-                                </div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/682167643dde6f4df3dc260e_menagrid.co-thumbnail.jpg" alt="Sales Lead Tracker" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Sales Lead Tracker</h3>
@@ -2177,20 +2295,8 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;">
-                                <div class="preview-header">
-                                    <div class="preview-dot"></div>
-                                    <div class="preview-dot"></div>
-                                    <div class="preview-dot"></div>
-                                </div>
-                                <div class="preview-content">
-                                    <div class="preview-list" style="flex:1;">
-                                        <div class="preview-list-item" style="width:80%;"></div>
-                                        <div class="preview-list-item" style="width:60%;"></div>
-                                        <div class="preview-list-item" style="width:90%;"></div>
-                                        <div class="preview-list-item" style="width:70%;"></div>
-                                    </div>
-                                </div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/682169ea5c7c5de017d9551a_Buildonline-thumbnail.jpg" alt="Customer Feedback" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Customer Feedback</h3>
@@ -2199,17 +2305,8 @@
                     </div>
                 </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;">
-                                <div class="preview-content" style="align-items:center; justify-content:center;">
-                                    <div class="preview-phone">
-                                        <div class="preview-phone-content">
-                                            <div class="preview-bar" style="width:60%;"></div>
-                                            <div class="preview-card" style="height:12px;"></div>
-                                            <div class="preview-card accent" style="height:12px;"></div>
-                                            <div class="preview-card" style="height:12px;"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68216b635a3fb5eae76385c5_Tonemaki--thumbnail.jpg" alt="Restaurant System" style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Restaurant System</h3>
@@ -2239,7 +2336,9 @@
                     </div>
                     <div class="cards-grid">
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68216b9305bf780d7386a91b_Giraldin-_-Official-Mercedes-Benz-Service---Car-Retail-thumbnail.jpg" alt="Design System" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Design System</h3>
                                 <p class="card-desc">Create unified visual language with tokens, themes, and variants.</p>
@@ -2247,7 +2346,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68216c2389232709b548802a_ao-Ventures-thumbnail.jpg" alt="UI Components" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">UI Components</h3>
                                 <p class="card-desc">Pre-built components that adapt to your brand automatically.</p>
@@ -2255,7 +2356,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68216e465263964006074a09_Namu-Travel-thumbnail.jpg" alt="Grid Layouts" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Grid Layouts</h3>
                                 <p class="card-desc">Responsive layouts that work on every screen size.</p>
@@ -2263,7 +2366,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68216f38f111b7cf4a1a0fc1_Ashutosh-Singh-thumbnail.jpg" alt="Refinement" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Refinement</h3>
                                 <p class="card-desc">Fine-tune every detail without breaking consistency.</p>
@@ -2292,7 +2397,9 @@
                     </div>
                     <div class="cards-grid">
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68cc0e80459161bc7e7adb72_SaltSaun.NW-thumbnail.png" alt="API Integration" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">API Integration</h3>
                                 <p class="card-desc">Connect to any REST or GraphQL API with zero configuration.</p>
@@ -2300,7 +2407,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/68cc0ea6defad758cab63a7e_Hobi-Production-thumbnail.png" alt="AI Models" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">AI Models</h3>
                                 <p class="card-desc">Integrate GPT, Claude, and custom models seamlessly.</p>
@@ -2308,7 +2417,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/64575931b1f95e3f0af2847c_S4E1ZcabVrO-N8o3ndgAFQih4hNVzWoMB4rf0JgWelk.jpg" alt="Data Sync" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Data Sync</h3>
                                 <p class="card-desc">Real-time synchronization across all your data sources.</p>
@@ -2316,7 +2427,9 @@
                     </div>
                 </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/645df569db924aa2697e2964_7PIWSQzdyu8-Mo9kxuaO8TZe5pdBM1Ch-TCJy8j7vWM.jpg" alt="Live Service" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Live Service</h3>
                                 <p class="card-desc">Deploy instantly with global edge distribution.</p>
@@ -2345,7 +2458,9 @@
                     </div>
                     <div class="cards-grid">
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/64bc3908e0ee6251f2a83188_YyPI-efwAY8yHvlhJ8eXTjbL3Iiqf570n__j3wwQi5U.jpg" alt="Internal Tools" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Internal Tools</h3>
                                 <p class="card-desc">Build admin panels, dashboards, and workflows in minutes.</p>
@@ -2353,7 +2468,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/652c56c7e89ae4ccd1088630_Vhok7-9d7jrCQTD2zx0EGf3_2ytfYqtiOOKo7eJ_QxY.jpg" alt="Custom Flow" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Custom Flow</h3>
                                 <p class="card-desc">Visual workflow builder for any business process.</p>
@@ -2361,7 +2478,9 @@
                         </div>
                         </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/6555aa769c16ac4dd9fdcbc0_FKjAesrS7Z04OSMjglanS3Tr53YIvenmzphgU0jTxOo.jpg" alt="Team Collaboration" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Team Collaboration</h3>
                                 <p class="card-desc">Real-time multiplayer editing and commenting.</p>
@@ -2369,7 +2488,9 @@
                     </div>
                 </div>
                         <div class="app-card">
-                            <div class="card-preview" style="background: #191919;"></div>
+                            <div class="card-preview" style="background: #191919; padding: 0; overflow: hidden;">
+                                <img src="images/case/65d3c889459c1244c9b18495_74-9AkKzjzsxBJMdKpoUixuZrpnxoBKHjIx7Ux33H74.png" alt="Self Service" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
                             <div class="card-content">
                                 <h3 class="font-semibold text-white">Self Service</h3>
                                 <p class="card-desc">Empower non-technical users to build their own tools.</p>
@@ -2469,9 +2590,7 @@
                     <!-- Startup -->
                     <div class="role-card">
                         <div class="role-icon">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
-                            </svg>
+                            <img src="images/Roles/Roles 01.webp" alt="Startup" style="width: 48px; height: 48px; object-fit: contain;">
                         </div>
                         <h3 class="text-lg mb-2">Startup</h3>
                         <p class="text-gray-500 text-sm leading-relaxed font-light">
@@ -2482,9 +2601,7 @@
                     <!-- Design Studio -->
                     <div class="role-card">
                         <div class="role-icon">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
-                            </svg>
+                            <img src="images/Roles/02.webp" alt="Design Studio" style="width: 48px; height: 48px; object-fit: contain;">
                         </div>
                         <h3 class="text-lg mb-2">Design & Develop Studio</h3>
                         <p class="text-gray-500 text-sm leading-relaxed font-light">
@@ -2498,9 +2615,7 @@
                     <!-- PM -->
                     <div class="role-card">
                         <div class="role-icon">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                            </svg>
+                            <img src="images/Roles/03.webp" alt="PM" style="width: 48px; height: 48px; object-fit: contain;">
                         </div>
                         <h3 class="text-lg mb-2">PM (Product Manager)</h3>
                         <p class="text-gray-500 text-sm leading-relaxed font-light">
@@ -2511,9 +2626,7 @@
                     <!-- Product Designer -->
                     <div class="role-card">
                         <div class="role-icon">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/>
-                            </svg>
+                            <img src="images/Roles/Roles 04.webp" alt="Product Designer" style="width: 48px; height: 48px; object-fit: contain;">
                         </div>
                         <h3 class="text-lg mb-2">Product Designer</h3>
                         <p class="text-gray-500 text-sm leading-relaxed font-light">
@@ -2524,9 +2637,7 @@
                     <!-- Engineer -->
                     <div class="role-card">
                         <div class="role-icon">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
+                            <img src="images/Roles/Roles 05.webp" alt="Engineer" style="width: 48px; height: 48px; object-fit: contain;">
                         </div>
                         <h3 class="text-lg mb-2">Engineer</h3>
                         <p class="text-gray-500 text-sm leading-relaxed font-light">
@@ -2537,9 +2648,7 @@
                     <!-- Marketing -->
                     <div class="role-card">
                         <div class="role-icon">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                            </svg>
+                            <img src="images/Roles/Roles 06.webp" alt="Marketing" style="width: 48px; height: 48px; object-fit: contain;">
                         </div>
                         <h3 class="text-lg mb-2">Marketing & Operation</h3>
                         <p class="text-gray-500 text-sm leading-relaxed font-light">
@@ -2552,9 +2661,15 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="relative" style="padding: 128px 5%; z-index: 2;" id="ctaSection">
+    <section class="relative" style="padding: 128px 5%; z-index: 2; overflow: hidden;" id="ctaSection">
+        <!-- CTA 背景图片 - 最底层 -->
+        <div class="cta-bg-image" style="position: absolute; inset: 0; z-index: 1; pointer-events: none;">
+            <img src="images/CTA.webp" alt="" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+        </div>
+        <!-- 背景点层 - 在背景图片上面 -->
+        <div style="position: absolute; inset: 0; z-index: 2; pointer-events: none; background-image: radial-gradient(circle, rgba(0, 204, 80, 0.25) 1.25px, transparent 1.25px); background-size: 20px 20px;"></div>
         
-        <div class="max-w-4xl mx-auto text-center relative">
+        <div class="max-w-4xl mx-auto text-center relative" style="z-index: 3;">
             <!-- Section 标签 -->
             <div class="section-tag mb-8 justify-center reveal">
                 <span class="dot"></span>
@@ -2562,12 +2677,12 @@
                 <span class="line"></span>
             </div>
             
-            <h2 class="text-5xl md:text-7xl mb-12 reveal">
+            <h2 class="reveal" style="font-size: 64px; font-weight: 500; margin-bottom: 24px; line-height: 1.1;">
                 Start creating with<br>
                 <span class="gradient-text-green">The Visual Coding Agent.</span>
             </h2>
             <div class="reveal" style="transition-delay: 0.1s;">
-                <button class="glow-button px-12 py-5 text-lg">
+                <button class="glow-button text-lg" style="border-radius: 52px; height: 52px; padding-left: 32px; padding-right: 32px;">
                 Start building now
             </button>
             </div>
@@ -2690,6 +2805,11 @@
                     setTimeout(() => {
                         if (heroTextContainer) heroTextContainer.classList.add('active');
                         if (heroCanvasLayout) heroCanvasLayout.classList.add('active');
+                        // 激活流动线条 - 延迟等卡片先出现
+                        setTimeout(() => {
+                            const flowLinesContainer = document.getElementById('flowLinesContainer');
+                            if (flowLinesContainer) flowLinesContainer.classList.add('active');
+                        }, 1200);
                     }, 600);
                 }, 100);
             }, 1500);
@@ -2728,6 +2848,24 @@
                 setTimeout(() => {
                     wrapper.style.animation = '';
                 }, 300);
+            });
+        });
+
+        // ===== Hero 卡片 3D 浮动效果 =====
+        const heroCards = document.querySelectorAll('.hero-card');
+        heroCards.forEach(card => {
+            VanillaTilt.init(card, {
+                max: 15,           // 最大倾斜角度
+                speed: 400,        // 过渡速度
+                glare: true,       // 启用光泽效果
+                "max-glare": 0.25, // 最大光泽强度
+                scale: 1.05,       // hover 时放大比例
+                perspective: 1000, // 透视距离
+                easing: "cubic-bezier(.03,.98,.52,.99)",
+                transition: true,
+                reset: true,
+                "reset-to-start": true,
+                gyroscope: false
             });
         });
 
