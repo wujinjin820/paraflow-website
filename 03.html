@@ -3374,7 +3374,7 @@
                     baseX: Math.sin(phi) * Math.cos(theta),
                     baseY: Math.sin(phi) * Math.sin(theta),
                     baseZ: Math.cos(phi),
-                    size: 1 + Math.random() * 0.5,
+                    size: 2 + Math.random() * 1,
                 });
             }
             
@@ -3418,7 +3418,7 @@
                 const sinX = Math.sin(rotationX);
                 
                 // 直接绘制，不排序（性能优化）
-                ctx.fillStyle = 'rgba(0, 204, 80, 0.6)';
+                ctx.fillStyle = '#00CC50';
                 
                 for (let i = 0; i < particles.length; i++) {
                     const p = particles[i];
@@ -3434,11 +3434,11 @@
                     
                     // 中心渐隐
                     const distFromCenter = Math.abs(screenX - centerX) + Math.abs(screenY - centerY);
-                    if (distFromCenter < 80) continue; // 跳过中心区域
+                    if (distFromCenter < 60) continue; // 跳过中心区域
                     
-                    const particleSize = p.size * (0.4 + depth * 0.6);
+                    const particleSize = p.size * (0.6 + depth * 0.8);
                     
-                    ctx.globalAlpha = 0.15 + depth * 0.5;
+                    ctx.globalAlpha = 0.25 + depth * 0.6;
                     ctx.fillRect(screenX - particleSize/2, screenY - particleSize/2, particleSize, particleSize);
                 }
                 
