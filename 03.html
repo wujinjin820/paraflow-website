@@ -3105,8 +3105,8 @@
                 }, removeTime);
             }
             
-            // 初始创建满屏的词（分布在不同位置）
-            for (let i = 0; i < 35; i++) {
+            // 初始创建词（减少数量优化性能）
+            for (let i = 0; i < 20; i++) {
                 // 负的 delay 让词初始就在屏幕的不同位置
                 const randomOffset = Math.random() * 30; // 0-30秒的偏移
                 createWord(randomOffset);
@@ -3343,14 +3343,14 @@
             });
         });
 
-        // ===== 粒子球体效果 (Squarespace 风格) =====
+        // ===== 粒子球体效果 (优化版) =====
         (function() {
             const canvas = document.getElementById('particleLogoCanvas');
             if (!canvas) return;
             
             const ctx = canvas.getContext('2d');
-            const size = 600; // 缩小
-            const dpr = window.devicePixelRatio || 1;
+            const size = 500;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2); // 限制最大 dpr
             canvas.width = size * dpr;
             canvas.height = size * dpr;
             canvas.style.width = size + 'px';
@@ -3358,96 +3358,92 @@
             ctx.scale(dpr, dpr);
             
             const particles = [];
-            const particleCount = 3000;
+            const particleCount = 800; // 大幅减少粒子数
             const centerX = size / 2;
             const centerY = size / 2;
-            const sphereRadius = 220; // 缩小一半
+            const sphereRadius = 180;
             
-            // 使用斐波那契球面分布创建均匀的球体粒子
+            // 使用斐波那契球面分布
             const goldenRatio = (1 + Math.sqrt(5)) / 2;
             
             for (let i = 0; i < particleCount; i++) {
                 const theta = 2 * Math.PI * i / goldenRatio;
                 const phi = Math.acos(1 - 2 * (i + 0.5) / particleCount);
                 
-                // 3D 球面坐标
-                const x = Math.sin(phi) * Math.cos(theta);
-                const y = Math.sin(phi) * Math.sin(theta);
-                const z = Math.cos(phi);
-                
                 particles.push({
-                    baseX: x,
-                    baseY: y,
-                    baseZ: z,
-                    size: 0.8 + Math.random() * 0.5,
+                    baseX: Math.sin(phi) * Math.cos(theta),
+                    baseY: Math.sin(phi) * Math.sin(theta),
+                    baseZ: Math.cos(phi),
+                    size: 1 + Math.random() * 0.5,
                 });
             }
             
             let rotationY = 0;
-            let rotationX = 0.4;
+            const rotationX = 0.4;
+            let isVisible = false;
+            let animationId = null;
+            let lastTime = 0;
+            const fps = 30; // 限制帧率
+            const frameInterval = 1000 / fps;
             
-            function animate() {
+            // 只在可见时动画
+            const observer = new IntersectionObserver((entries) => {
+                isVisible = entries[0].isIntersecting;
+                if (isVisible && !animationId) {
+                    lastTime = performance.now();
+                    animationId = requestAnimationFrame(animate);
+                }
+            }, { threshold: 0.1 });
+            observer.observe(canvas.parentElement);
+            
+            function animate(currentTime) {
+                if (!isVisible) {
+                    animationId = null;
+                    return;
+                }
+                
+                animationId = requestAnimationFrame(animate);
+                
+                // 帧率限制
+                if (currentTime - lastTime < frameInterval) return;
+                lastTime = currentTime;
+                
                 ctx.clearRect(0, 0, size, size);
                 
-                // 绘制背景光晕
-                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 300);
-                gradient.addColorStop(0, 'rgba(0, 204, 80, 0.1)');
-                gradient.addColorStop(0.5, 'rgba(0, 204, 80, 0.04)');
-                gradient.addColorStop(1, 'rgba(0, 204, 80, 0)');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, size, size);
+                rotationY += 0.003;
                 
-                rotationY += 0.002;
+                const cosY = Math.cos(rotationY);
+                const sinY = Math.sin(rotationY);
+                const cosX = Math.cos(rotationX);
+                const sinX = Math.sin(rotationX);
                 
-                const projected = [];
+                // 直接绘制，不排序（性能优化）
+                ctx.fillStyle = 'rgba(0, 204, 80, 0.6)';
                 
                 for (let i = 0; i < particles.length; i++) {
                     const p = particles[i];
                     
-                    const cosY = Math.cos(rotationY);
-                    const sinY = Math.sin(rotationY);
                     const x1 = p.baseX * cosY - p.baseZ * sinY;
                     const z1 = p.baseX * sinY + p.baseZ * cosY;
-                    
-                    const cosX = Math.cos(rotationX);
-                    const sinX = Math.sin(rotationX);
                     const y1 = p.baseY * cosX - z1 * sinX;
                     const z2 = p.baseY * sinX + z1 * cosX;
                     
-                    projected.push({
-                        screenX: centerX + x1 * sphereRadius,
-                        screenY: centerY + y1 * sphereRadius,
-                        z: z2,
-                        size: p.size,
-                    });
+                    const screenX = centerX + x1 * sphereRadius;
+                    const screenY = centerY + y1 * sphereRadius;
+                    const depth = (z2 + 1) / 2;
+                    
+                    // 中心渐隐
+                    const distFromCenter = Math.abs(screenX - centerX) + Math.abs(screenY - centerY);
+                    if (distFromCenter < 80) continue; // 跳过中心区域
+                    
+                    const particleSize = p.size * (0.4 + depth * 0.6);
+                    
+                    ctx.globalAlpha = 0.15 + depth * 0.5;
+                    ctx.fillRect(screenX - particleSize/2, screenY - particleSize/2, particleSize, particleSize);
                 }
                 
-                projected.sort((a, b) => a.z - b.z);
-                
-                for (let i = 0; i < projected.length; i++) {
-                    const p = projected[i];
-                    const depth = (p.z + 1) / 2;
-                    
-                    // 计算到中心的距离，中心区域更透明
-                    const distFromCenter = Math.sqrt(
-                        Math.pow(p.screenX - centerX, 2) + 
-                        Math.pow(p.screenY - centerY, 2)
-                    );
-                    const centerFade = Math.min(1, distFromCenter / 120); // 中心120px内渐隐
-                    
-                    const alpha = (0.05 + depth * 0.5) * (0.2 + centerFade * 0.6);
-                    const particleSize = p.size * (0.3 + depth * 0.6);
-                    
-                    ctx.beginPath();
-                    ctx.arc(p.screenX, p.screenY, particleSize, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(0, 204, 80, ${alpha})`;
-                    ctx.fill();
-                }
-                
-                requestAnimationFrame(animate);
+                ctx.globalAlpha = 1;
             }
-            
-            animate();
         })();
 
         // ===== 导航栏滚动效果 =====
