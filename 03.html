@@ -3358,10 +3358,10 @@
             ctx.scale(dpr, dpr);
             
             const particles = [];
-            const particleCount = 800; // 大幅减少粒子数
+            const particleCount = 1500; // 增加粒子数
             const centerX = size / 2;
             const centerY = size / 2;
-            const sphereRadius = 180;
+            const sphereRadius = 200;
             
             // 使用斐波那契球面分布
             const goldenRatio = (1 + Math.sqrt(5)) / 2;
@@ -3374,7 +3374,7 @@
                     baseX: Math.sin(phi) * Math.cos(theta),
                     baseY: Math.sin(phi) * Math.sin(theta),
                     baseZ: Math.cos(phi),
-                    size: 2 + Math.random() * 1,
+                    size: 2.5 + Math.random() * 1.5,
                 });
             }
             
@@ -3434,11 +3434,11 @@
                     
                     // 中心渐隐
                     const distFromCenter = Math.abs(screenX - centerX) + Math.abs(screenY - centerY);
-                    if (distFromCenter < 60) continue; // 跳过中心区域
+                    if (distFromCenter < 50) continue; // 跳过中心区域
                     
-                    const particleSize = p.size * (0.6 + depth * 0.8);
+                    const particleSize = p.size * (0.8 + depth * 1.0);
                     
-                    ctx.globalAlpha = 0.25 + depth * 0.6;
+                    ctx.globalAlpha = 0.4 + depth * 0.5;
                     ctx.fillRect(screenX - particleSize/2, screenY - particleSize/2, particleSize, particleSize);
                 }
                 
