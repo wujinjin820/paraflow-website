@@ -628,12 +628,13 @@
         
         /* 中间 - DESIGN (从下方弹入，最重要) */
         .hero-card-design {
-            left: 512px;
+            left: 50%;
+            margin-left: -144px; /* 宽度 288px 的一半 */
             top: 623px;
             width: 288px;
             opacity: 0; /* GSAP 控制初始状态 */
         }
-        
+
         .hero-card-design.visible {
             opacity: 1;
         }
@@ -692,10 +693,46 @@
             transition-delay: 0.5s;
         }
         
-        @media (max-width: 1200px) {
-            .hero-card-define { width: 300px; left: 20px; }
-            .hero-card-develop { width: 320px; right: 20px; }
-            .hero-card-design { width: 230px; left: 40px; }
+        /* 针对 1440px 笔记本屏幕的优化 */
+        @media (max-width: 1500px) {
+            .hero-card-define { 
+                width: 320px; 
+                left: 7vw; 
+                top: 450px;
+            }
+            .hero-card-develop { 
+                width: 360px; 
+                right: 7vw; 
+                left: auto;
+                top: 480px;
+            }
+            .hero-card-design { 
+                width: 260px; 
+                left: 50%; 
+                margin-left: -130px;
+                top: 650px; 
+            }
+        }
+
+        /* 针对 1280px 及更小屏幕的优化 */
+        @media (max-width: 1340px) {
+            .hero-card-define { 
+                width: 280px; 
+                left: 8vw; 
+                top: 440px;
+            }
+            .hero-card-develop { 
+                width: 320px; 
+                right: 8vw; 
+                left: auto;
+                top: 470px;
+            }
+            .hero-card-design { 
+                width: 240px; 
+                left: 50%; 
+                margin-left: -120px;
+                top: 680px; 
+            }
         }
         
         @media (max-width: 900px) {
@@ -892,6 +929,7 @@
             font-size: 20px;
             font-weight: 300;
             line-height: 1.5;
+            height: 32px;
             color: rgba(255, 255, 255, 0.5);
             text-align: center;
             margin: 0;
